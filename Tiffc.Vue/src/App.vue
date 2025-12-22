@@ -211,7 +211,7 @@ async function submitProduct() {
                 </label>
 
                 <label class="flex flex-col">
-                  <span class="text-sm font-medium text-gray-700 mb-1.5">售價 (JPY) *</span>
+                  <span class="text-sm font-medium text-gray-700 mb-1.5">特價 (JPY) *</span>
                   <input type="number" v-model.number="form.priceJpySale"
                     class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                     placeholder="0" />
