@@ -1,0 +1,6 @@
+@Tiffc_HostAddress = http://localhost:5115
+
+GET {{Tiffc_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
