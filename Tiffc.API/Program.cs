@@ -12,6 +12,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSupabase(builder.Configuration);
 
+// CORS: 允許本地開發前端 (允許任何 localhost/loopback origin，例如含任意埠)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowLocalhosts",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepository>();
 
@@ -29,6 +41,9 @@ app.UseHttpsRedirection();
 // 提供靜態文件服務
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+// 啟用 CORS（需在 Authorization 之前）
+app.UseCors("AllowLocalhosts");
 
 app.UseAuthorization();
 
