@@ -105,91 +105,112 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app">
-    <h1>商品管理</h1>
+  <div class="max-w-[1000px] mx-auto my-6 px-3">
+    <h1 class="mb-2 text-3xl font-bold">商品管理</h1>
 
-    <section class="form-section">
-      <h2>新增商品</h2>
-      <div class="form-grid">
-        <label>標題
-          <input v-model="form.title" />
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">新增商品</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="flex flex-col">
+          <span class="mb-1">標題</span>
+          <input v-model="form.title" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>原價 (JPY)
-          <input type="number" v-model.number="form.priceJpyOriginal" />
+        <label class="flex flex-col">
+          <span class="mb-1">原價 (JPY)</span>
+          <input type="number" v-model.number="form.priceJpyOriginal"
+            class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>售價 (JPY)
-          <input type="number" v-model.number="form.priceJpySale" />
+        <label class="flex flex-col">
+          <span class="mb-1">售價 (JPY)</span>
+          <input type="number" v-model.number="form.priceJpySale" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>售價 (TWD)
-          <input type="number" v-model.number="form.priceTwd" />
+        <label class="flex flex-col">
+          <span class="mb-1">售價 (TWD)</span>
+          <input type="number" v-model.number="form.priceTwd" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>商店
-          <input v-model="form.shopName" />
+        <label class="flex flex-col">
+          <span class="mb-1">商店</span>
+          <input v-model="form.shopName" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>分類
-          <input v-model="form.category" />
+        <label class="flex flex-col">
+          <span class="mb-1">分類</span>
+          <input v-model="form.category" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>網址
-          <input v-model="form.url" />
+        <label class="flex flex-col">
+          <span class="mb-1">網址</span>
+          <input v-model="form.url" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label>備註
-          <input v-model="form.notes" />
+        <label class="flex flex-col">
+          <span class="mb-1">備註</span>
+          <input v-model="form.notes" class="px-2 py-1.5 border border-gray-300 rounded" />
         </label>
-        <label class="full">描述
-          <textarea v-model="form.description"></textarea>
+        <label class="flex flex-col col-span-2">
+          <span class="mb-1">描述</span>
+          <textarea v-model="form.description" class="px-2 py-1.5 border border-gray-300 rounded min-h-20"></textarea>
         </label>
 
-        <div class="full">
-          <div class="sub-header">圖片網址</div>
-          <div v-for="(url, idx) in form.imageUrls" :key="idx" class="row">
-            <input v-model="form.imageUrls[idx]" placeholder="https://..." />
-            <button type="button" @click="removeImage(idx)" :disabled="form.imageUrls.length === 1">移除</button>
+        <div class="col-span-2">
+          <div class="font-semibold mb-1.5">圖片網址</div>
+          <div v-for="(url, idx) in form.imageUrls" :key="idx" class="flex gap-2 items-center mb-1.5">
+            <input v-model="form.imageUrls[idx]" placeholder="https://..."
+              class="flex-1 px-2 py-1.5 border border-gray-300 rounded" />
+            <button type="button" @click="removeImage(idx)" :disabled="form.imageUrls.length === 1"
+              class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">移除</button>
           </div>
-          <button type="button" @click="addImage">新增圖片網址</button>
+          <button type="button" @click="addImage"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">新增圖片網址</button>
         </div>
 
-        <div class="full">
-          <div class="sub-header">Variants</div>
-          <div v-for="(v, idx) in form.variants" :key="idx" class="variant-row">
-            <input v-model="v.variantName" placeholder="variantName (e.g. 顏色)" />
-            <input v-model="v.variantValue" placeholder="variantValue (e.g. 黑色)" />
-            <button type="button" @click="removeVariant(idx)" :disabled="form.variants.length === 1">移除</button>
+        <div class="col-span-2">
+          <div class="font-semibold mb-1.5">Variants</div>
+          <div v-for="(v, idx) in form.variants" :key="idx" class="flex gap-2 items-center mb-1.5">
+            <input v-model="v.variantName" placeholder="variantName (e.g. 顏色)"
+              class="flex-1 px-2 py-1.5 border border-gray-300 rounded" />
+            <input v-model="v.variantValue" placeholder="variantValue (e.g. 黑色)"
+              class="flex-1 px-2 py-1.5 border border-gray-300 rounded" />
+            <button type="button" @click="removeVariant(idx)" :disabled="form.variants.length === 1"
+              class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">移除</button>
           </div>
-          <button type="button" @click="addVariant">新增 Variant</button>
+          <button type="button" @click="addVariant"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">新增 Variant</button>
         </div>
 
-        <div class="full actions">
-          <button @click.prevent="submitProduct">送出新增</button>
-          <button @click.prevent="clearForm">清除表單</button>
+        <div class="col-span-2 flex gap-2">
+          <button @click.prevent="submitProduct"
+            class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">送出新增</button>
+          <button @click.prevent="clearForm"
+            class="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">清除表單</button>
         </div>
       </div>
-      <div class="status">
-        <div v-if="error" class="error">{{ error }}</div>
+      <div class="mt-2">
+        <div v-if="error" class="text-red-600 font-medium">{{ error }}</div>
       </div>
     </section>
 
-    <section class="list-section">
-      <h2>商品列表</h2>
-      <div v-if="loading">讀取中...</div>
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold mb-4">商品列表</h2>
+      <div v-if="loading" class="text-gray-600">讀取中...</div>
       <div v-else>
-        <div v-if="products.length === 0">沒有商品</div>
-        <ul class="product-list">
-          <li v-for="p in products" :key="p.id" class="product">
-            <div class="product-left">
-              <img v-if="p.imageUrls && p.imageUrls[0]" :src="p.imageUrls[0]" alt="img" />
+        <div v-if="products.length === 0" class="text-gray-500">沒有商品</div>
+        <ul class="list-none p-0 m-0">
+          <li v-for="p in products" :key="p.id" class="flex gap-3 p-3 border-b border-gray-200">
+            <div class="shrink-0">
+              <img v-if="p.imageUrls && p.imageUrls[0]" :src="p.imageUrls[0]" alt="img"
+                class="w-30 h-30 object-cover rounded-md" />
             </div>
-            <div class="product-right">
-              <h3>{{ p.title }}</h3>
-              <div class="meta">店家: {{ p.shopName }} | 分類: {{ p.category }}</div>
-              <div class="prices">JPY: {{ p.priceJpySale }} / TWD: {{ p.priceTwd }}</div>
-              <p class="desc">{{ p.description }}</p>
-              <div class="variants">
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold m-0">{{ p.title }}</h3>
+              <div class="text-gray-600 text-sm mt-1">店家: {{ p.shopName }} | 分類: {{ p.category }}</div>
+              <div class="mt-1.5 font-semibold">JPY: {{ p.priceJpySale }} / TWD: {{ p.priceTwd }}</div>
+              <p class="mt-2 text-gray-700">{{ p.description }}</p>
+              <div class="mt-2">
                 <strong>Variants:</strong>
-                <ul>
+                <ul class="ml-5 mt-1">
                   <li v-for="v in p.variants" :key="v.id">{{ v.variantName }}：{{ v.variantValue }}</li>
                 </ul>
               </div>
-              <a v-if="p.url" :href="p.url" target="_blank">商品連結</a>
+              <a v-if="p.url" :href="p.url" target="_blank"
+                class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline">商品連結</a>
             </div>
           </li>
         </ul>
@@ -197,108 +218,3 @@ onMounted(() => {
     </section>
   </div>
 </template>
-
-<style scoped>
-:root {
-  --gap: 12px
-}
-
-.app {
-  max-width: 1000px;
-  margin: 24px auto;
-  padding: 12px;
-  font-family: system-ui, Segoe UI, Roboto
-}
-
-h1 {
-  margin-bottom: 8px
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap)
-}
-
-label {
-  display: flex;
-  flex-direction: column
-}
-
-label.full {
-  grid-column: 1/-1
-}
-
-input,
-textarea {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px
-}
-
-.row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 6px
-}
-
-.variant-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 6px
-}
-
-.sub-header {
-  font-weight: 600;
-  margin-bottom: 6px
-}
-
-.actions {
-  display: flex;
-  gap: 8px
-}
-
-.product-list {
-  list-style: none;
-  padding: 0;
-  margin: 0
-}
-
-.product {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  border-bottom: 1px solid #eee
-}
-
-.product-left img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px
-}
-
-.product-right h3 {
-  margin: 0
-}
-
-.meta {
-  color: #666;
-  font-size: 13px
-}
-
-.prices {
-  margin-top: 6px;
-  font-weight: 600
-}
-
-.desc {
-  margin-top: 8px
-}
-
-.error {
-  color: #b00020
-}
-</style>
