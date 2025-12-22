@@ -19,6 +19,6 @@ public class ProductVariant : BaseModel
     public string VariantValue { get; set; } = string.Empty;
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 }

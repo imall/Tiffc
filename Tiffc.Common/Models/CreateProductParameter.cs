@@ -1,8 +1,7 @@
-﻿namespace Tiffc.Common.Models;
+namespace Tiffc.Common.Models;
 
-public class ProductModel
+public class CreateProductParameter
 {
-    public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public decimal PriceJpyOriginal { get; set; }
     public decimal? PriceJpySale { get; set; }
@@ -13,5 +12,6 @@ public class ProductModel
     public string? ShopName { get; set; }
     public string? Category { get; set; }
     public string? Notes { get; set; }
-    public DateTime CreatedAt { get; set; }
+    
+    public IEnumerable<CreateProductVariantParameter>? Variants { get; set; }
 }

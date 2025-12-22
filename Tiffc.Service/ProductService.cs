@@ -13,11 +13,29 @@ public class ProductService(ProductRepository repository)
         return await repository.GetAllProductsAsync();
     }
 
+
     /// <summary>
-    /// 新增一筆商品
+    /// 新增商品(包含規格)
     /// </summary>
-    public async Task<ProductModel?> CreateProductAsync(CreateProductParameter product)
+    public async Task<ProductModel?> CreateProductAsync(CreateProductParameter parameter)
     {
-        return await repository.CreateProductAsync(product);
+        // 如果有帶規格,一起新增
+        if (parameter.Variants != null && parameter.Variants.Any())
+        {
+            return await repository.CreateProductWithVariantsAsync(parameter);
+        }
+        
+        // 沒有規格,只新增商品
+        return await repository.CreateProductAsync(parameter);
+    }
+    
+    /// <summary>
+    /// 為現有商品新增規格
+    /// </summary>
+    public async Task<IEnumerable<ProductVariantModel>?> AddProductVariantsAsync(
+        Guid productId, 
+        IEnumerable<CreateProductVariantParameter> variants)
+    {
+        return await repository.AddProductVariantsAsync(productId, variants);
     }
 }

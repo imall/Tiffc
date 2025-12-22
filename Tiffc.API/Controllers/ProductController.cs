@@ -34,4 +34,30 @@ public class ProductController(ProductService productService) : ControllerBase
 
         return CreatedAtAction(nameof(GetAll), new { id = product.Id }, product);
     }
+
+
+    /// <summary>
+    /// 為指定商品新增規格
+    /// </summary>
+    /// <param name="productId">商品ID</param>
+    /// <param name="variants">規格列表</param>
+    /// <returns>新增的規格</returns>
+    [HttpPost("{productId:guid}/variants")]
+    public async Task<ActionResult<IEnumerable<ProductVariantModel>>> AddVariants(
+        Guid productId,
+        [FromBody] IEnumerable<CreateProductVariantParameter> variants)
+    {
+        if (!variants.Any())
+            return BadRequest("規格資料不可為空");
+
+        var createdVariants = await productService.AddProductVariantsAsync(productId, variants);
+
+        if (createdVariants == null)
+            return NotFound($"找不到商品 ID: {productId}");
+
+        if (!createdVariants.Any())
+            return BadRequest("無法新增規格");
+
+        return Ok(createdVariants);
+    }
 }
