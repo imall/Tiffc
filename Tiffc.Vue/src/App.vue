@@ -1,11 +1,11 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
+import { useProducts } from './composables/useProducts'
+import ProductCard from './components/ProductCard.vue'
 
 const baseUrl = 'https://tiffc.onrender.com'
 
-const products = ref([])
-const loading = ref(false)
-const error = ref('')
+const { products, loading, error, fetchProducts, refresh } = useProducts()
 const showAddForm = ref(false)
 const currentImageIndex = ref({})
 const downloading = ref({})
@@ -54,7 +54,7 @@ function prevImage(product) {
 async function downloadAllImages(product) {
   if (!product || !product.imageUrls || product.imageUrls.length === 0) return;
   try {
-    downloading[product.id] = true
+    downloading.value[product.id] = true
     for (let i = 0; i < product.imageUrls.length; i++) {
       const url = product.imageUrls[i]
       const res = await fetch(url)
@@ -77,7 +77,7 @@ async function downloadAllImages(product) {
   } catch (e) {
     alert('下載圖片失敗: ' + e.message)
   } finally {
-    downloading[product.id] = false
+    downloading.value[product.id] = false
   }
 }
 
@@ -114,20 +114,7 @@ function toggleAddForm() {
   }
 }
 
-async function fetchProducts() {
-  loading.value = true
-  error.value = ''
-  try {
-    const res = await fetch(baseUrl + '/product')
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-    products.value = await res.json()
-  } catch (e) {
-    error.value = '讀取商品失敗: ' + e.message
-    products.value = []
-  } finally {
-    loading.value = false
-  }
-}
+
 
 function clearForm() {
   form.title = ''
@@ -173,15 +160,11 @@ async function submitProduct() {
     }
     clearForm()
     showAddForm.value = false
-    await fetchProducts()
+    await refresh()
   } catch (e) {
     error.value = '新增商品失敗: ' + e.message
   }
 }
-
-onMounted(() => {
-  fetchProducts()
-})
 </script>
 
 <template>
@@ -360,114 +343,8 @@ onMounted(() => {
 
       <!-- Products Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <article v-for="product in products" :key="product.id"
-          class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-          <!-- Image Gallery -->
-          <div class="relative aspect-square bg-gray-100">
-            <img v-if="product.imageUrls && product.imageUrls.length > 0"
-              :src="product.imageUrls[getCurrentImage(product.id)]" :alt="product.title"
-              class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-              <span class="text-4xl">🖼️</span>
-            </div>
-
-            <!-- Discount Badge -->
-            <div v-if="getDiscountPercent(product.priceJpyOriginal, product.priceJpySale) > 0"
-              class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-              -{{ getDiscountPercent(product.priceJpyOriginal, product.priceJpySale) }}%
-            </div>
-
-            <!-- Image Navigation -->
-            <div v-if="product.imageUrls && product.imageUrls.length > 1"
-              class="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button @click="prevImage(product)"
-                class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button @click="nextImage(product)"
-                class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- Image Indicators -->
-            <div v-if="product.imageUrls && product.imageUrls.length > 1"
-              class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-              <button v-for="(img, idx) in product.imageUrls" :key="idx" @click="setCurrentImage(product.id, idx)"
-                :class="['w-1.5 h-1.5 rounded-full transition-all', getCurrentImage(product.id) === idx ? 'bg-white w-4' : 'bg-white/50']">
-              </button>
-            </div>
-          </div>
-
-          <!-- Product Info -->
-          <div class="p-4">
-            <!-- Category & Shop -->
-            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-              <span v-if="product.category" class="bg-gray-100 px-2 py-1 rounded">{{ product.category }}</span>
-              <span v-if="product.shopName">{{ product.shopName }}</span>
-            </div>
-
-            <!-- Title -->
-            <h3 class="font-medium text-gray-900 mb-3 line-clamp-2 min-h-12">
-              {{ product.title }}
-            </h3>
-
-            <!-- Price -->
-            <div class="mb-3">
-              <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-gray-900">¥{{ (product.priceJpySale || 0).toLocaleString()
-                }}</span>
-                <span v-if="product.priceJpyOriginal && product.priceJpyOriginal > product.priceJpySale"
-                  class="text-sm text-gray-400 line-through">¥{{ product.priceJpyOriginal.toLocaleString() }}</span>
-              </div>
-              <div class="text-sm text-gray-600 mt-1">
-                NT${{ (product.priceTwd || 0).toLocaleString() }}
-              </div>
-            </div>
-
-            <!-- Variants -->
-            <div v-if="product.variants && product.variants.length > 0" class="mb-3 space-y-2">
-              <div v-for="(values, name) in groupVariants(product.variants)" :key="name" class="text-sm">
-                <span class="text-gray-600">{{ name }}:</span>
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span v-for="(value, idx) in values" :key="idx"
-                    class="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                    {{ value }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <p v-if="product.description" class="text-sm text-gray-600 mb-3 line-clamp-2">
-              {{ product.description }}
-            </p>
-
-            <!-- Actions -->
-            <div class="flex gap-2">
-              <a v-if="product.url" :href="product.url" target="_blank"
-                class="flex-1 text-center px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors text-sm font-medium">
-                查看商品
-              </a>
-              <button v-if="product.imageUrls && product.imageUrls.length > 0" @click="downloadAllImages(product)"
-                :disabled="downloading[product.id]"
-                class="flex-1 text-center px-4 py-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-60">
-                {{ downloading[product.id] ? '下載中...' : '下載圖片' }}
-              </button>
-            </div>
-
-            <!-- Notes -->
-            <div v-if="product.notes" class="mt-3 pt-3 border-t border-gray-100">
-              <p class="text-xs text-gray-500">
-                <span class="font-medium">備註:</span> {{ product.notes }}
-              </p>
-            </div>
-          </div>
-        </article>
+        <ProductCard v-for="product in products" :key="product.id" :product="product"
+          :downloading="downloading[product.id]" @download="downloadAllImages" />
       </div>
     </main>
   </div>
