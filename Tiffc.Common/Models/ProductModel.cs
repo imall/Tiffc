@@ -14,4 +14,6 @@ public class ProductModel
     public string? Category { get; set; }
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
+    
+    public List<ProductVariantModel>? Variants { get; set; }
 }

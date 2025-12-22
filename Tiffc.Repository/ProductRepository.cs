@@ -11,18 +11,38 @@ namespace Tiffc.Repository;
 public class ProductRepository(Client supabaseClient)
 {
     /// <summary>
-    /// 查詢全部商品
+    /// 查詢全部商品(含規格)
     /// </summary>
     public async Task<IEnumerable<ProductModel>> GetAllProductsAsync()
     {
-        var response = await supabaseClient
+        // 1. 查詢所有商品
+        var productsResponse = await supabaseClient
             .From<Product>()
             .Get();
 
-        // 轉換成 DTO
-        return response.Models.Select(MapToModel).ToList();
-    }
+        if (!productsResponse.Models.Any())
+            return new List<ProductModel>();
 
+        // 2. 查詢所有規格
+        var variantsResponse = await supabaseClient
+            .From<ProductVariant>()
+            .Get();
+
+        // 3. 將規格按 ProductId 分組
+        var variantsByProductId = variantsResponse.Models
+            .GroupBy(v => v.ProductId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        // 4. 組合商品和規格
+        return productsResponse.Models.Select(product =>
+        {
+            var productModel = MapToModel(product);
+            productModel.Variants = variantsByProductId.TryGetValue(product.Id, out var variants)
+                ? variants.Select(MapToProductVariantModel).ToList()
+                : [];
+            return productModel;
+        }).ToList();
+    }
     /// <summary>
     /// 新增一筆商品
     /// </summary>
