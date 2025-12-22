@@ -8,6 +8,7 @@ const loading = ref(false)
 const error = ref('')
 const showAddForm = ref(false)
 const currentImageIndex = ref({})
+const downloading = ref({})
 
 const form = reactive({
   title: '',
@@ -17,8 +18,8 @@ const form = reactive({
   description: '',
   url: '',
   imageUrls: [''],
-  shopName: '',
-  category: '',
+  shopName: 'ZOZOTOWN',
+  category: '衣服',
   notes: '',
   variants: [{ variantName: '', variantValue: '' }]
 })
@@ -48,6 +49,36 @@ function prevImage(product) {
   const current = getCurrentImage(product.id)
   const prev = current === 0 ? product.imageUrls.length - 1 : current - 1
   setCurrentImage(product.id, prev)
+}
+
+async function downloadAllImages(product) {
+  if (!product || !product.imageUrls || product.imageUrls.length === 0) return;
+  try {
+    downloading[product.id] = true
+    for (let i = 0; i < product.imageUrls.length; i++) {
+      const url = product.imageUrls[i]
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`下載失敗: ${res.status} ${res.statusText}`)
+      const blob = await res.blob()
+      const extMatch = url.split('.').pop().split(/[#?]/)[0] || 'jpg'
+      const safeTitle = (product.title || 'product').replace(/[\\/:*?"<>|]/g, '')
+      const filename = `${safeTitle}-${product.id}-${i}.${extMatch}`
+      const objUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(objUrl)
+      // small delay to reduce chance of browser blocking multiple downloads
+      await new Promise(res => setTimeout(res, 200))
+    }
+  } catch (e) {
+    alert('下載圖片失敗: ' + e.message)
+  } finally {
+    downloading[product.id] = false
+  }
 }
 
 // 將 variants 按照名稱分組
@@ -106,8 +137,8 @@ function clearForm() {
   form.description = ''
   form.url = ''
   form.imageUrls = ['']
-  form.shopName = ''
-  form.category = ''
+  form.shopName = 'ZOZOTOWN'
+  form.category = '衣服'
   form.notes = ''
   form.variants = [{ variantName: '', variantValue: '' }]
 }
@@ -389,7 +420,7 @@ onMounted(() => {
             <div class="mb-3">
               <div class="flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-gray-900">¥{{ (product.priceJpySale || 0).toLocaleString()
-                  }}</span>
+                }}</span>
                 <span v-if="product.priceJpyOriginal && product.priceJpyOriginal > product.priceJpySale"
                   class="text-sm text-gray-400 line-through">¥{{ product.priceJpyOriginal.toLocaleString() }}</span>
               </div>
@@ -422,6 +453,11 @@ onMounted(() => {
                 class="flex-1 text-center px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors text-sm font-medium">
                 查看商品
               </a>
+              <button v-if="product.imageUrls && product.imageUrls.length > 0" @click="downloadAllImages(product)"
+                :disabled="downloading[product.id]"
+                class="flex-1 text-center px-4 py-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-60">
+                {{ downloading[product.id] ? '下載中...' : '下載圖片' }}
+              </button>
             </div>
 
             <!-- Notes -->
