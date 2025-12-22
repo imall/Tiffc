@@ -26,8 +26,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// 提供靜態文件服務
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+// SPA fallback - 所有非 API 路由都返回 index.html
+app.MapFallbackToFile("index.html");
 
 app.Run();
