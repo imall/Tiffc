@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tiffc.Common\Tiffc.Common.csproj" />
+      <ProjectReference Include="..\Tiffc.Repository\Tiffc.Repository.csproj" />
+    </ItemGroup>
+
 </Project>
