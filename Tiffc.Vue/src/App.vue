@@ -185,7 +185,7 @@ async function submitProduct() {
     <!-- Add Product Form Modal -->
     <transition name="fade">
       <div v-if="showAddForm"
-        class="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-y-auto py-8"
+        class="fixed inset-0 bg-black/50 z-50 flex items-start justify-center py-8"
         @click.self="toggleAddForm">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-4" @click.stop>
           <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
@@ -211,7 +211,7 @@ async function submitProduct() {
                 </label>
 
                 <label class="flex flex-col">
-                  <span class="text-sm font-medium text-gray-700 mb-1.5">特價 (JPY) *</span>
+                  <span class="text-sm font-medium text-gray-700 mb-1.5"> 特價 (JPY) *</span>
                   <input type="number" v-model.number="form.priceJpySale"
                     class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                     placeholder="0" />
