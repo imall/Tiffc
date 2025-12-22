@@ -381,7 +381,7 @@ onMounted(() => {
             </div>
 
             <!-- Title -->
-            <h3 class="font-medium text-gray-900 mb-3 line-clamp-2 min-h-[3rem]">
+            <h3 class="font-medium text-gray-900 mb-3 line-clamp-2 min-h-12">
               {{ product.title }}
             </h3>
 
@@ -450,7 +450,6 @@ onMounted(() => {
 
 .line-clamp-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
