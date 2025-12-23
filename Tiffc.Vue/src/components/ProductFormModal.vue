@@ -1,20 +1,38 @@
 <script setup>
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { useProductForm } from '../composables/useProductForm'
 
-const props = defineProps({ visible: { type: Boolean, default: false } })
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  mode: { type: String, default: 'add', validator: (v) => ['add', 'edit'].includes(v) },
+  product: { type: Object, default: null }
+})
 const emit = defineEmits(['close', 'submitted'])
 
-const { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct } = useProductForm()
+const { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct, updateProduct, loadProduct } = useProductForm()
+
+const isEditMode = computed(() => props.mode === 'edit')
+const modalTitle = computed(() => isEditMode.value ? '編輯代購商品' : '新增代購商品')
+const submitButtonText = computed(() => isEditMode.value ? '更新商品' : '送出新增')
+const submitButtonLoadingText = computed(() => isEditMode.value ? '更新中...' : '送出中...')
 
 watch(() => props.visible, (v) => {
-  if (!v) {
+  if (v && isEditMode.value && props.product) {
+    loadProduct(props.product)
+  } else if (!v) {
     clearForm()
   }
 })
 
 async function onSubmit() {
-  const ok = await submitProduct()
+  let ok = false
+  if (isEditMode.value) {
+    if (!props.product?.id) return
+    ok = await updateProduct(props.product.id)
+  } else {
+    ok = await submitProduct()
+  }
+
   if (ok) {
     emit('submitted')
     emit('close')
@@ -34,7 +52,7 @@ function onCancel() {
       <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col my-auto overflow-x-hidden"
         @click.stop>
         <div class="shrink-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-4 rounded-t-lg">
-          <h2 class="text-xl font-bold text-gray-900">新增代購商品</h2>
+          <h2 class="text-xl font-bold text-gray-900">{{ modalTitle }}</h2>
         </div>
 
         <div class="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-6">
@@ -113,7 +131,8 @@ function onCancel() {
             <div class="border-t border-gray-200 pt-4">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-medium text-gray-700">商品圖片</span>
-                <button type="button" @click="addImage" class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
+                <button type="button" @click="addImage"
+                  class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
                   新增圖片</button>
               </div>
               <div class="space-y-2">
@@ -130,7 +149,8 @@ function onCancel() {
             <div class="border-t border-gray-200 pt-4">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-medium text-gray-700">規格選項 (顏色、尺寸等)</span>
-                <button type="button" @click="addVariant" class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
+                <button type="button" @click="addVariant"
+                  class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
                   新增規格</button>
               </div>
               <div class="space-y-2">
@@ -158,7 +178,7 @@ function onCancel() {
             class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer">
             <span v-if="isSubmitting"
               class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin "></span>
-            {{ isSubmitting ? '送出中...' : '送出新增' }}
+            {{ isSubmitting ? submitButtonLoadingText : submitButtonText }}
           </button>
           <button @click="onCancel" :disabled="isSubmitting"
             class="px-6 py-3 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">取消</button>

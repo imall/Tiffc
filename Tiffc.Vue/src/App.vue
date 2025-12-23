@@ -2,24 +2,21 @@
 import { ref } from 'vue'
 import { useProducts } from './composables/useProducts'
 import { useImageDownloader } from './composables/useImageDownloader'
-import AddProductModal from './components/AddProductModal.vue'
-import EditProductModal from './components/EditProductModal.vue'
+import ProductFormModal from './components/ProductFormModal.vue'
 import ProductCard from './components/ProductCard.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 
 const { products, loading, refresh, deleteProduct, isDeleting } = useProducts()
 const { downloading, downloadAllImages } = useImageDownloader()
-const showAddForm = ref(false)
-const showEditForm = ref(false)
+const showProductForm = ref(false)
+const formMode = ref('add')
 const productToEdit = ref(null)
 const productToDelete = ref(null)
 
 function toggleAddForm() {
-  showAddForm.value = !showAddForm.value
-}
-
-async function onProductSubmitted() {
-  await refresh()
+  formMode.value = 'add'
+  productToEdit.value = null
+  showProductForm.value = !showProductForm.value
 }
 
 function handleDownload(product) {
@@ -27,16 +24,17 @@ function handleDownload(product) {
 }
 
 function handleEdit(product) {
+  formMode.value = 'edit'
   productToEdit.value = product
-  showEditForm.value = true
+  showProductForm.value = true
 }
 
-function closeEditForm() {
-  showEditForm.value = false
+function closeProductForm() {
+  showProductForm.value = false
   productToEdit.value = null
 }
 
-async function onProductUpdated() {
+async function onProductFormSubmitted() {
   await refresh()
 }
 
@@ -68,18 +66,15 @@ async function confirmDelete() {
           <h1 class="text-2xl font-bold tracking-tight text-gray-900">TIFFC 代購清單</h1>
           <button @click="toggleAddForm"
             class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm cursor-pointer">
-            {{ showAddForm ? '取消' : '+ 新增商品' }}
+            {{ showProductForm && formMode === 'add' ? '取消' : '+ 新增商品' }}
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Add Product Modal -->
-    <AddProductModal :visible="showAddForm" @close="toggleAddForm" @submitted="onProductSubmitted" />
-
-    <!-- Edit Product Modal -->
-    <EditProductModal :visible="showEditForm" :product="productToEdit" @close="closeEditForm"
-      @submitted="onProductUpdated" />
+    <!-- Product Form Modal -->
+    <ProductFormModal :visible="showProductForm" :mode="formMode" :product="productToEdit" @close="closeProductForm"
+      @submitted="onProductFormSubmitted" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
