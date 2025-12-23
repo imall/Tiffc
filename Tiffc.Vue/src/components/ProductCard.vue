@@ -4,7 +4,7 @@ import ImageGallery from './ImageGallery.vue'
 import VariantsList from './VariantsList.vue'
 
 const props = defineProps({ product: { type: Object, required: true }, downloading: { type: Boolean, default: false } })
-const emit = defineEmits(['download', 'delete'])
+const emit = defineEmits(['download', 'delete', 'edit'])
 
 const isDescriptionExpanded = ref(false)
 const isCopied = ref(false)
@@ -19,6 +19,10 @@ function onDownload() {
 
 function handleDelete() {
   emit('delete', props.product)
+}
+
+function handleEdit() {
+  emit('edit', props.product)
 }
 
 function groupVariants(variants) {
@@ -84,11 +88,18 @@ async function copyToClipboard() {
 <template>
   <article
     class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col relative">
-    <button @click="handleDelete"
-      class="absolute top-2 right-2 z-10 w-7 h-7 bg-gray-200 text-gray-500 rounded-full hover:bg-gray-300 hover:text-gray-700 transition-colors flex items-center justify-center text-lg cursor-pointer"
-      title="刪除商品">
-      ×
-    </button>
+    <div class="absolute top-2 right-2 z-10 flex gap-2">
+      <button @click="handleEdit"
+        class="w-7 h-7 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center text-sm cursor-pointer"
+        title="編輯商品">
+        ✎
+      </button>
+      <button @click="handleDelete"
+        class="w-7 h-7 bg-gray-200 text-gray-500 rounded-full hover:bg-gray-300 hover:text-gray-700 transition-colors flex items-center justify-center text-lg cursor-pointer"
+        title="刪除商品">
+        ×
+      </button>
+    </div>
     <ImageGallery :product="product" />
 
     <div class="p-4 flex flex-col flex-1">

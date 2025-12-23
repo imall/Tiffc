@@ -3,12 +3,15 @@ import { ref } from 'vue'
 import { useProducts } from './composables/useProducts'
 import { useImageDownloader } from './composables/useImageDownloader'
 import AddProductModal from './components/AddProductModal.vue'
+import EditProductModal from './components/EditProductModal.vue'
 import ProductCard from './components/ProductCard.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 
 const { products, loading, refresh, deleteProduct, isDeleting } = useProducts()
 const { downloading, downloadAllImages } = useImageDownloader()
 const showAddForm = ref(false)
+const showEditForm = ref(false)
+const productToEdit = ref(null)
 const productToDelete = ref(null)
 
 function toggleAddForm() {
@@ -21,6 +24,20 @@ async function onProductSubmitted() {
 
 function handleDownload(product) {
   downloadAllImages(product)
+}
+
+function handleEdit(product) {
+  productToEdit.value = product
+  showEditForm.value = true
+}
+
+function closeEditForm() {
+  showEditForm.value = false
+  productToEdit.value = null
+}
+
+async function onProductUpdated() {
+  await refresh()
 }
 
 function handleDelete(product) {
@@ -60,6 +77,10 @@ async function confirmDelete() {
     <!-- Add Product Modal -->
     <AddProductModal :visible="showAddForm" @close="toggleAddForm" @submitted="onProductSubmitted" />
 
+    <!-- Edit Product Modal -->
+    <EditProductModal :visible="showEditForm" :product="productToEdit" @close="closeEditForm"
+      @submitted="onProductUpdated" />
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Loading State -->
@@ -82,7 +103,8 @@ async function confirmDelete() {
       <!-- Products Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <ProductCard v-for="product in products" :key="product.id" :product="product"
-          :downloading="downloading[product.id] || false" @download="handleDownload" @delete="handleDelete" />
+          :downloading="downloading[product.id] || false" @download="handleDownload" @edit="handleEdit"
+          @delete="handleDelete" />
       </div>
     </main>
 

@@ -49,6 +49,25 @@ export function useProductForm() {
     error.value = ''
   }
 
+  function loadProduct(product) {
+    if (!product) return
+
+    form.title = product.title || ''
+    form.priceJpyOriginal = product.priceJpyOriginal || ''
+    form.priceJpySale = product.priceJpySale || ''
+    form.priceTwd = product.priceTwd || ''
+    form.description = product.description || ''
+    form.url = product.url || ''
+    form.imageUrls = product.imageUrls && product.imageUrls.length > 0 ? [...product.imageUrls] : ['']
+    form.shopName = product.shopName || 'ZOZOTOWN'
+    form.category = product.category || '衣服'
+    form.notes = product.notes || ''
+    form.variants = product.variants && product.variants.length > 0
+      ? product.variants.map(v => ({ variantName: v.variantName || '', variantValue: v.variantValue || '' }))
+      : [{ variantName: '', variantValue: '' }]
+    error.value = ''
+  }
+
   async function submitProduct() {
     error.value = ''
     isSubmitting.value = true
@@ -90,5 +109,46 @@ export function useProductForm() {
     }
   }
 
-  return { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct }
+  async function updateProduct(productId) {
+    error.value = ''
+    isSubmitting.value = true
+
+    const payload = {
+      title: form.title,
+      priceJpyOriginal: Number(form.priceJpyOriginal) || 0,
+      priceJpySale: Number(form.priceJpySale) || 0,
+      priceTwd: Number(form.priceTwd) || 0,
+      description: form.description,
+      url: form.url,
+      imageUrls: form.imageUrls.filter(u => u && u.trim() !== ''),
+      shopName: form.shopName,
+      category: form.category,
+      notes: form.notes,
+      variants: form.variants
+        .filter(v => (v.variantName && v.variantName.trim() !== '') || (v.variantValue && v.variantValue.trim() !== ''))
+        .map(v => ({ variantName: v.variantName, variantValue: v.variantValue }))
+    }
+
+    try {
+      const res = await fetch(`${baseUrl}/Product/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        const txt = await res.text()
+        error.value = `更新商品失敗: ${res.status} ${res.statusText} - ${txt}`
+        return false
+      }
+      clearForm()
+      return true
+    } catch (e) {
+      error.value = '更新商品失敗: ' + e.message
+      return false
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  return { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct, updateProduct, loadProduct }
 }
