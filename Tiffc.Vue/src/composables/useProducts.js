@@ -6,6 +6,7 @@ export function useProducts() {
   const products = ref([])
   const loading = ref(false)
   const error = ref('')
+  const isDeleting = ref(false)
 
   async function fetchProducts() {
     loading.value = true
@@ -22,6 +23,24 @@ export function useProducts() {
     }
   }
 
+  async function deleteProduct(productId) {
+    isDeleting.value = true
+    try {
+      const res = await fetch(`${baseUrl}/product/${productId}`, {
+        method: 'DELETE'
+      })
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+      // 從本地列表中移除已刪除的商品
+      products.value = products.value.filter(p => p.id !== productId)
+      return true
+    } catch (e) {
+      error.value = '刪除商品失敗: ' + e.message
+      return false
+    } finally {
+      isDeleting.value = false
+    }
+  }
+
   function refresh() {
     return fetchProducts()
   }
@@ -29,5 +48,5 @@ export function useProducts() {
   // 初始載入
   fetchProducts()
 
-  return { products, loading, error, fetchProducts, refresh }
+  return { products, loading, error, fetchProducts, refresh, deleteProduct, isDeleting }
 }

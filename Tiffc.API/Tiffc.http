@@ -1,6 +1,35 @@
 @Tiffc_HostAddress = http://localhost:5115
 
-GET {{Tiffc_HostAddress}}/weatherforecast/
-Accept: application/json
+### 新增單一商品
+POST https://tiffc.onrender.com/Product
+accept: text/plain
+Content-Type: application/json
+
+{
+  "title": "タイ付きメランジルーズニット",
+  "priceJpyOriginal": 7040.00,
+  "priceJpySale": 2200.00,
+  "priceTwd": 300.00,
+  "description": "這是很棒的商品，一個值得你買的衣服",
+  "url": "https://zozo.jp/shop/whoswhochico/goods-sale/97980242/?did=158260535&rid=2606",
+  "imageUrls": [
+    "https://c.imgz.jp/242/98980242/98980242_291_d_500.jpg",
+    "https://c.imgz.jp/242/98980242/98980242_b_14_500.jpg",
+    "https://c.imgz.jp/242/98980242/98980242_b_30_500.jpg"
+  ],
+  "shopName": "zozotown",
+  "category": "衣服",
+  "notes": "阿魁要買的",
+  "variants": [
+    {
+      "variantName": "顏色",
+      "variantValue": "藍色"
+    },
+    {
+      "variantName": "顏色",
+      "variantValue": "黑色"
+    }
+  ]
+}
 
 ###

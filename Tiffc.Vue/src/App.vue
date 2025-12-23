@@ -4,10 +4,12 @@ import { useProducts } from './composables/useProducts'
 import { useImageDownloader } from './composables/useImageDownloader'
 import AddProductModal from './components/AddProductModal.vue'
 import ProductCard from './components/ProductCard.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
 
-const { products, loading, refresh } = useProducts()
+const { products, loading, refresh, deleteProduct, isDeleting } = useProducts()
 const { downloading, downloadAllImages } = useImageDownloader()
 const showAddForm = ref(false)
+const productToDelete = ref(null)
 
 function toggleAddForm() {
   showAddForm.value = !showAddForm.value
@@ -19,6 +21,24 @@ async function onProductSubmitted() {
 
 function handleDownload(product) {
   downloadAllImages(product)
+}
+
+function handleDelete(product) {
+  productToDelete.value = product
+}
+
+function cancelDelete() {
+  productToDelete.value = null
+}
+
+async function confirmDelete() {
+  if (!productToDelete.value) return
+
+  const success = await deleteProduct(productToDelete.value.id)
+  if (!success) {
+    alert('刪除商品失敗，請稍後再試')
+  }
+  productToDelete.value = null
 }
 </script>
 
@@ -62,9 +82,18 @@ function handleDownload(product) {
       <!-- Products Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <ProductCard v-for="product in products" :key="product.id" :product="product"
-          :downloading="downloading[product.id] || false" @download="handleDownload" />
+          :downloading="downloading[product.id] || false" @download="handleDownload" @delete="handleDelete" />
       </div>
     </main>
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmDialog :visible="!!productToDelete" title="確認刪除商品" confirm-text="確認刪除" cancel-text="取消"
+      confirm-button-class="bg-red-500 hover:bg-red-600" :loading="isDeleting" @confirm="confirmDelete"
+      @cancel="cancelDelete">
+      <p class="text-gray-600 mb-2">確定要刪除以下商品嗎？</p>
+      <p class="text-gray-900 font-medium mb-4">「{{ productToDelete?.title }}」</p>
+      <p class="text-sm text-gray-500">此操作無法復原，商品及其所有規格資料將被永久刪除。</p>
+    </ConfirmDialog>
   </div>
 </template>
 
