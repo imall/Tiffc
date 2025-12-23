@@ -113,7 +113,7 @@ function onCancel() {
             <div class="border-t border-gray-200 pt-4">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-medium text-gray-700">商品圖片</span>
-                <button type="button" @click="addImage" class="text-sm text-black hover:text-gray-700 font-medium">+
+                <button type="button" @click="addImage" class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
                   新增圖片</button>
               </div>
               <div class="space-y-2">
@@ -130,7 +130,7 @@ function onCancel() {
             <div class="border-t border-gray-200 pt-4">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-medium text-gray-700">規格選項 (顏色、尺寸等)</span>
-                <button type="button" @click="addVariant" class="text-sm text-black hover:text-gray-700 font-medium">+
+                <button type="button" @click="addVariant" class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
                   新增規格</button>
               </div>
               <div class="space-y-2">
@@ -155,13 +155,13 @@ function onCancel() {
         <!-- Form Actions -->
         <div class="shrink-0 bg-gray-50 border-t border-gray-200 px-3 sm:px-6 py-4 flex gap-3 rounded-b-lg">
           <button @click="onSubmit" :disabled="isSubmitting"
-            class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer">
             <span v-if="isSubmitting"
-              class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin "></span>
             {{ isSubmitting ? '送出中...' : '送出新增' }}
           </button>
           <button @click="onCancel" :disabled="isSubmitting"
-            class="px-6 py-3 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed">取消</button>
+            class="px-6 py-3 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">取消</button>
         </div>
       </div>
     </div>

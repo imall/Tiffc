@@ -30,7 +30,7 @@ function handleDownload(product) {
         <div class="flex justify-between items-center h-16">
           <h1 class="text-2xl font-bold tracking-tight text-gray-900">TIFFC 代購清單</h1>
           <button @click="toggleAddForm"
-            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm">
+            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm cursor-pointer">
             {{ showAddForm ? '取消' : '+ 新增商品' }}
           </button>
         </div>

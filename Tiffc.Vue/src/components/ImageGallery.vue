@@ -28,12 +28,12 @@ function next() {
     </div>
 
     <div v-if="product.imageUrls && product.imageUrls.length > 1" class="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button @click.prevent="prev" class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors">
+      <button @click.prevent="prev" class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      <button @click.prevent="next" class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors">
+      <button @click.prevent="next" class="bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
