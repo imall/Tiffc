@@ -31,12 +31,13 @@ function onCancel() {
   <transition name="fade">
     <div v-if="visible" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
       @click.self="onCancel">
-      <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col my-auto" @click.stop>
-        <div class="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-lg">
+      <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col my-auto overflow-x-hidden"
+        @click.stop>
+        <div class="shrink-0 bg-white border-b border-gray-200 px-3 sm:px-6 py-4 rounded-t-lg">
           <h2 class="text-xl font-bold text-gray-900">新增代購商品</h2>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-6">
           <div class="space-y-4">
             <!-- 基本資訊 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -148,7 +149,7 @@ function onCancel() {
         </div>
 
         <!-- Form Actions -->
-        <div class="flex-shrink-0 bg-gray-50 border-t border-gray-200 px-4 sm:px-6 py-4 flex gap-3 rounded-b-lg">
+        <div class="shrink-0 bg-gray-50 border-t border-gray-200 px-3 sm:px-6 py-4 flex gap-3 rounded-b-lg">
           <button @click="onSubmit"
             class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium">送出新增</button>
           <button @click="onCancel"
