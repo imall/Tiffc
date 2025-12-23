@@ -1,5 +1,6 @@
 <script setup>
 import { watch, computed } from 'vue'
+import { useExchangeRates } from '../composables/useExchangeRates'
 import { useProductForm } from '../composables/useProductForm'
 
 const props = defineProps({
@@ -10,6 +11,16 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submitted'])
 
 const { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct, updateProduct, loadProduct } = useProductForm()
+
+// 使用 composable 取得匯率
+const { fetchExchangeRates, getSitePrices } = useExchangeRates()
+
+import { onMounted } from 'vue'
+onMounted(() => {
+  fetchExchangeRates()
+})
+
+const sitePrices = computed(() => getSitePrices(form.priceJpyOriginal, form.priceJpySale));
 
 const isEditMode = computed(() => props.mode === 'edit')
 const modalTitle = computed(() => isEditMode.value ? '編輯代購商品' : '新增代購商品')
@@ -95,22 +106,30 @@ function onCancel() {
                   placeholder="0" />
               </label>
 
+          
+
               <label class="flex flex-col">
                 <span class="text-sm font-medium text-red-700 mb-1.5">日幣特價 *</span>
                 <input type="number" v-model.number="form.priceJpySale" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
-
+              
+              <div class="flex flex-col justify-center col-span-2">
+                <span class="text-sm font-medium text-gray-700 mb-1.5">各代購網站台幣售價</span>
+                <div v-if="sitePrices.length">
+                  <div v-for="site in sitePrices" :key="site.source" class="text-xs text-gray-600 mb-1">
+                    {{ site.source }} 台幣售價：<span class="font-bold">{{ site.price }}</span>
+                  </div>
+                </div>
+                <div v-else class="text-xs text-gray-400">無法取得匯率資料</div>
+              </div>
               <label class="flex flex-col">
                 <span class="text-sm font-bold  text-black-700 mb-1.5">台幣售價 *</span>
                 <input type="number" v-model.number="form.priceTwd" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
-
-
-
 
               <label class="flex flex-col col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">備註</span>

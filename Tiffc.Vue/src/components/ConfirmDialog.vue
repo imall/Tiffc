@@ -2,7 +2,7 @@
 const props = defineProps({
   visible: { type: Boolean, default: false },
   title: { type: String, default: '確認' },
-  message: { type: String, required: true },
+  message: { type: String, required: false },
   confirmText: { type: String, default: '確認' },
   cancelText: { type: String, default: '取消' },
   confirmButtonClass: { type: String, default: 'bg-red-500 hover:bg-red-600' },
