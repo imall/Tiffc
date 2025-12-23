@@ -61,6 +61,20 @@ public class ProductController(ProductService productService) : ControllerBase
         return Ok(createdVariants);
     }
     
+    /// <summary>
+    /// 更新商品及其規格
+    /// </summary>
+    /// <param name="productId"></param>
+    /// <param name="updateProduct"></param>
+    /// <returns></returns>
+    [HttpPut("{productId:guid}")]
+    public async Task<ActionResult<ProductModel>> UpdateProduct(Guid productId, [FromBody] UpdateProductParameter updateProduct)
+    {
+        var updatedProduct = await productService.UpdateProductAsync(productId, updateProduct);
+        if (updatedProduct == null)
+            return NotFound($"找不到商品 ID: {productId}");
+        return Ok(updatedProduct);
+    }
     
     /// <summary>
     /// 刪除商品及其規格

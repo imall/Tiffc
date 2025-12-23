@@ -35,14 +35,16 @@ public class ProductRepository(Client supabaseClient)
 
         // 4. 組合商品和規格
         return productsResponse.Models.Select(product =>
-        {
-            var productModel = MapToModel(product);
-            productModel.Variants = variantsByProductId.TryGetValue(product.Id, out var variants)
-                ? variants.Select(MapToProductVariantModel).ToList()
-                : [];
-            return productModel;
-        }).ToList();
+            {
+                var productModel = MapToModel(product);
+                productModel.Variants = variantsByProductId.TryGetValue(product.Id, out var variants)
+                    ? variants.Select(MapToProductVariantModel).ToList()
+                    : [];
+                return productModel;
+            })
+            .ToList();
     }
+
     /// <summary>
     /// 新增一筆商品
     /// </summary>
@@ -70,7 +72,7 @@ public class ProductRepository(Client supabaseClient)
         var createdProduct = response.Models.FirstOrDefault();
         return createdProduct != null ? MapToModel(createdProduct) : null;
     }
-    
+
     /// <summary>
     /// 新增商品及其規格(一次完成)
     /// </summary>
@@ -100,14 +102,15 @@ public class ProductRepository(Client supabaseClient)
             return null;
 
         if (parameter.Variants == null || !parameter.Variants.Any()) return MapToProductModel(createdProduct);
-        
-        
+
+
         var variants = parameter.Variants.Select(v => new ProductVariant
-        {
-            ProductId = createdProduct.Id,
-            VariantName = v.VariantName,
-            VariantValue = v.VariantValue
-        }).ToList();
+            {
+                ProductId = createdProduct.Id,
+                VariantName = v.VariantName,
+                VariantValue = v.VariantValue
+            })
+            .ToList();
 
         await supabaseClient
             .From<ProductVariant>()
@@ -121,7 +124,7 @@ public class ProductRepository(Client supabaseClient)
     /// 為現有商品新增規格
     /// </summary>
     public async Task<IEnumerable<ProductVariantModel>?> AddProductVariantsAsync(
-        Guid productId, 
+        Guid productId,
         IEnumerable<CreateProductVariantParameter> variants)
     {
         // 1. 確認商品是否存在
@@ -135,11 +138,12 @@ public class ProductRepository(Client supabaseClient)
 
         // 2. 將參數轉換成 Entity
         var variantEntities = variants.Select(v => new ProductVariant
-        {
-            ProductId = productId,
-            VariantName = v.VariantName,
-            VariantValue = v.VariantValue
-        }).ToList();
+            {
+                ProductId = productId,
+                VariantName = v.VariantName,
+                VariantValue = v.VariantValue
+            })
+            .ToList();
 
         // 3. 批次新增規格
         var response = await supabaseClient
@@ -149,7 +153,80 @@ public class ProductRepository(Client supabaseClient)
         // 4. 轉換成 Model 回傳
         return response.Models.Select(MapToProductVariantModel);
     }
-    
+
+
+    /// <summary>
+    /// 更新商品及其規格(完整替換)
+    /// </summary>
+    public async Task<ProductModel?> UpdateProductAsync(Guid productId, UpdateProductParameter parameter)
+    {
+        try
+        {
+            // 1. 確認商品是否存在
+            var existingProduct = await supabaseClient
+                .From<Product>()
+                .Where(x => x.Id == productId)
+                .Single();
+
+            if (existingProduct == null)
+                return null;
+
+            // 2. 更新商品基本資訊
+            var updatedProduct = new Product
+            {
+                Id = productId,
+                Title = parameter.Title,
+                PriceJpyOriginal = parameter.PriceJpyOriginal,
+                PriceJpySale = parameter.PriceJpySale,
+                PriceTwd = parameter.PriceTwd,
+                Description = parameter.Description,
+                Url = parameter.Url,
+                ImageUrls = parameter.ImageUrls,
+                ShopName = parameter.ShopName,
+                Category = parameter.Category,
+                Notes = parameter.Notes
+            };
+
+            var productResponse = await supabaseClient
+                .From<Product>()
+                .Update(updatedProduct);
+
+            var result = productResponse.Models.FirstOrDefault();
+            if (result == null)
+                return null;
+
+            // 3. 完整替換規格：先刪除所有舊規格
+            await supabaseClient
+                .From<ProductVariant>()
+                .Where(v => v.ProductId == productId)
+                .Delete();
+
+          
+            if (parameter.Variants == null || parameter.Variants.Count == 0) return MapToProductModel(result);
+
+            // 4. 如果有新規格，則新增
+            var variants = parameter.Variants.Select(v => new ProductVariant
+                {
+                    ProductId = productId,
+                    VariantName = v.VariantName,
+                    VariantValue = v.VariantValue
+                })
+                .ToList();
+
+            await supabaseClient
+                .From<ProductVariant>()
+                .Insert(variants);
+
+
+            return MapToProductModel(result);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+
     /// <summary>
     /// 刪除商品(會連同規格一起刪除)
     /// </summary>
@@ -216,8 +293,7 @@ public class ProductRepository(Client supabaseClient)
             return false;
         }
     }
-    
-    
+
     /// <summary>
     /// Entity 轉 ProductModel
     /// </summary>

@@ -40,6 +40,14 @@ public class ProductService(ProductRepository repository)
     }
     
     /// <summary>
+    /// 更新商品及其規格(完整替換)
+    /// </summary>
+    public async Task<ProductModel?> UpdateProductAsync(Guid productId, UpdateProductParameter parameter)
+    {
+        return await repository.UpdateProductAsync(productId, parameter);
+    }
+    
+    /// <summary>
     /// 刪除商品(會連同規格一起刪除)
     /// </summary>
     public async Task<bool> DeleteProductAsync(Guid productId)
