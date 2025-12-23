@@ -60,4 +60,46 @@ public class ProductController(ProductService productService) : ControllerBase
 
         return Ok(createdVariants);
     }
+    
+    
+    /// <summary>
+    /// 刪除商品及其規格
+    /// </summary>
+    /// <param name="productId">商品 ID</param>
+    /// <returns></returns>
+    [HttpDelete("{productId:guid}")]
+    public async Task<ActionResult> DeleteProduct(Guid productId)
+    {
+        var result = await productService.DeleteProductAsync(productId);
+        if (!result)
+            return NotFound($"找不到商品 ID: {productId}");
+
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// 刪除單一商品規格
+    /// </summary>
+    /// <param name="variantId"></param>
+    /// <returns></returns>
+    [HttpDelete("variants/{variantId:guid}")]
+    public async Task<ActionResult> DeleteProductVariant(Guid variantId)
+    {
+        var result = await productService.DeleteProductVariantAsync(variantId);
+        if (!result)
+            return NotFound($"找不到規格 ID: {variantId}");
+
+        return NoContent();
+    }
+    
+    // 刪除商品的所有規格
+    [HttpDelete("{productId:guid}/variants")]
+    public async Task<ActionResult> DeleteAllProductVariants(Guid productId)
+    {
+        var result = await productService.DeleteAllProductVariantsAsync(productId);
+        if (!result)
+            return NotFound($"找不到商品 ID: {productId}");
+
+        return NoContent();
+    }
 }

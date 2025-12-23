@@ -150,6 +150,73 @@ public class ProductRepository(Client supabaseClient)
         return response.Models.Select(MapToProductVariantModel);
     }
     
+    /// <summary>
+    /// 刪除商品(會連同規格一起刪除)
+    /// </summary>
+    public async Task<bool> DeleteProductAsync(Guid productId)
+    {
+        try
+        {
+            // 1. 先刪除該商品的所有規格
+            await supabaseClient
+                .From<ProductVariant>()
+                .Where(v => v.ProductId == productId)
+                .Delete();
+
+            // 2. 刪除商品本身
+            await supabaseClient
+                .From<Product>()
+                .Where(p => p.Id == productId)
+                .Delete();
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 刪除單一商品規格
+    /// </summary>
+    public async Task<bool> DeleteProductVariantAsync(Guid variantId)
+    {
+        try
+        {
+            await supabaseClient
+                .From<ProductVariant>()
+                .Where(v => v.Id == variantId)
+                .Delete();
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 刪除商品的所有規格
+    /// </summary>
+    public async Task<bool> DeleteAllProductVariantsAsync(Guid productId)
+    {
+        try
+        {
+            await supabaseClient
+                .From<ProductVariant>()
+                .Where(v => v.ProductId == productId)
+                .Delete();
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
     
     /// <summary>
     /// Entity 轉 ProductModel

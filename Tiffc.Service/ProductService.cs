@@ -38,4 +38,29 @@ public class ProductService(ProductRepository repository)
     {
         return await repository.AddProductVariantsAsync(productId, variants);
     }
+    
+    /// <summary>
+    /// 刪除商品(會連同規格一起刪除)
+    /// </summary>
+    public async Task<bool> DeleteProductAsync(Guid productId)
+    {
+   
+        return await repository.DeleteProductAsync(productId);
+    }
+
+    /// <summary>
+    /// 刪除單一商品規格
+    /// </summary>
+    public async Task<bool> DeleteProductVariantAsync(Guid variantId)
+    {
+        return await repository.DeleteProductVariantAsync(variantId);
+    }
+
+    /// <summary>
+    /// 刪除商品的所有規格
+    /// </summary>
+    public async Task<bool> DeleteAllProductVariantsAsync(Guid productId)
+    {
+        return await repository.DeleteAllProductVariantsAsync(productId);
+    }
 }
