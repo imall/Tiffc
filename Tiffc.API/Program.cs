@@ -1,11 +1,12 @@
 using Tiffc.API.DependencyInjection;
 using Tiffc.Repository;
 using Tiffc.Service;
+using Tiffc.Service.Crawlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -26,6 +27,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepository>();
+// 註冊所有爬蟲
+builder.Services.AddScoped<IExchangeRateCrawler, LetaoCrawler>();
+
+// 註冊爬蟲服務
+builder.Services.AddScoped<ExchangeRateCrawlerService>();
+
+// 註冊 Repository
+builder.Services.AddScoped<ExchangeRateRepository>();
 
 var app = builder.Build();
 
