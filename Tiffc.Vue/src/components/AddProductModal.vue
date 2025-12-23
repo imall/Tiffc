@@ -5,7 +5,7 @@ import { useProductForm } from '../composables/useProductForm'
 const props = defineProps({ visible: { type: Boolean, default: false } })
 const emit = defineEmits(['close', 'submitted'])
 
-const { form, error, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct } = useProductForm()
+const { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct } = useProductForm()
 
 watch(() => props.visible, (v) => {
   if (!v) {
@@ -55,13 +55,13 @@ function onCancel() {
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="請輸入商品標題" />
               </label>
-                 <label class="flex flex-col">
+              <label class="flex flex-col">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">分類</span>
                 <input v-model="form.category"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="衣服" />
               </label>
-              
+
               <label class="flex flex-col">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">商店名稱</span>
                 <input v-model="form.shopName"
@@ -72,27 +72,27 @@ function onCancel() {
 
               <label class="flex flex-col">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">日幣原價 </span>
-                <input type="number" v-model.number="form.priceJpyOriginal"
+                <input type="number" v-model.number="form.priceJpyOriginal" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
 
               <label class="flex flex-col">
                 <span class="text-sm font-medium text-red-700 mb-1.5">日幣特價 *</span>
-                <input type="number" v-model.number="form.priceJpySale"
+                <input type="number" v-model.number="form.priceJpySale" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
 
               <label class="flex flex-col">
                 <span class="text-sm font-bold  text-black-700 mb-1.5">台幣售價 *</span>
-                <input type="number" v-model.number="form.priceTwd"
+                <input type="number" v-model.number="form.priceTwd" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
 
 
-           
+
 
               <label class="flex flex-col col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">備註</span>
@@ -154,10 +154,14 @@ function onCancel() {
 
         <!-- Form Actions -->
         <div class="shrink-0 bg-gray-50 border-t border-gray-200 px-3 sm:px-6 py-4 flex gap-3 rounded-b-lg">
-          <button @click="onSubmit"
-            class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium">送出新增</button>
-          <button @click="onCancel"
-            class="px-6 py-3 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors font-medium">取消</button>
+          <button @click="onSubmit" :disabled="isSubmitting"
+            class="flex-1 px-6 py-3 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <span v-if="isSubmitting"
+              class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            {{ isSubmitting ? '送出中...' : '送出新增' }}
+          </button>
+          <button @click="onCancel" :disabled="isSubmitting"
+            class="px-6 py-3 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed">取消</button>
         </div>
       </div>
     </div>

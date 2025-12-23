@@ -5,9 +5,9 @@ const baseUrl = 'https://tiffc.onrender.com'
 export function useProductForm() {
   const form = reactive({
     title: '',
-    priceJpyOriginal: 0,
-    priceJpySale: 0,
-    priceTwd: 0,
+    priceJpyOriginal: '',
+    priceJpySale: '',
+    priceTwd: '',
     description: '',
     url: '',
     imageUrls: [''],
@@ -18,6 +18,7 @@ export function useProductForm() {
   })
 
   const error = ref('')
+  const isSubmitting = ref(false)
 
   function addImage() {
     form.imageUrls.push('')
@@ -35,9 +36,9 @@ export function useProductForm() {
 
   function clearForm() {
     form.title = ''
-    form.priceJpyOriginal = 0
-    form.priceJpySale = 0
-    form.priceTwd = 0
+    form.priceJpyOriginal = ''
+    form.priceJpySale = ''
+    form.priceTwd = ''
     form.description = ''
     form.url = ''
     form.imageUrls = ['']
@@ -50,6 +51,8 @@ export function useProductForm() {
 
   async function submitProduct() {
     error.value = ''
+    isSubmitting.value = true
+
     const payload = {
       title: form.title,
       priceJpyOriginal: Number(form.priceJpyOriginal) || 0,
@@ -82,8 +85,10 @@ export function useProductForm() {
     } catch (e) {
       error.value = '新增商品失敗: ' + e.message
       return false
+    } finally {
+      isSubmitting.value = false
     }
   }
 
-  return { form, error, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct }
+  return { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct }
 }
