@@ -41,47 +41,6 @@ function onCancel() {
           <div class="space-y-4">
             <!-- 基本資訊 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label class="flex flex-col col-span-2">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">商品標題 *</span>
-                <input v-model="form.title"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="請輸入商品標題" />
-              </label>
-
-              <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">原價 (JPY)</span>
-                <input type="number" v-model.number="form.priceJpyOriginal"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="0" />
-              </label>
-
-              <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">特價 (JPY) *</span>
-                <input type="number" v-model.number="form.priceJpySale"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="0" />
-              </label>
-
-              <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">售價 (TWD) *</span>
-                <input type="number" v-model.number="form.priceTwd"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="0" />
-              </label>
-
-              <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">商店名稱</span>
-                <input v-model="form.shopName"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="ZOZOTOWN" />
-              </label>
-
-              <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">分類</span>
-                <input v-model="form.category"
-                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
-                  placeholder="衣服" />
-              </label>
 
               <label class="flex flex-col col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">商品網址</span>
@@ -89,6 +48,51 @@ function onCancel() {
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="https://..." />
               </label>
+
+              <label class="flex flex-col col-span-2">
+                <span class="text-sm font-medium text-gray-700 mb-1.5">商品標題 *</span>
+                <input v-model="form.title"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="請輸入商品標題" />
+              </label>
+                 <label class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700 mb-1.5">分類</span>
+                <input v-model="form.category"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="衣服" />
+              </label>
+              
+              <label class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700 mb-1.5">商店名稱</span>
+                <input v-model="form.shopName"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="ZOZOTOWN" />
+              </label>
+
+
+              <label class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700 mb-1.5">日幣原價 </span>
+                <input type="number" v-model.number="form.priceJpyOriginal"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="0" />
+              </label>
+
+              <label class="flex flex-col">
+                <span class="text-sm font-medium text-red-700 mb-1.5">日幣特價 *</span>
+                <input type="number" v-model.number="form.priceJpySale"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="0" />
+              </label>
+
+              <label class="flex flex-col">
+                <span class="text-sm font-bold  text-black-700 mb-1.5">台幣售價 *</span>
+                <input type="number" v-model.number="form.priceTwd"
+                  class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                  placeholder="0" />
+              </label>
+
+
+           
 
               <label class="flex flex-col col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">備註</span>
