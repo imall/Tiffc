@@ -113,11 +113,11 @@ function onCancel() {
                   新增圖片</button>
               </div>
               <div class="space-y-2">
-                <div v-for="(url, idx) in form.imageUrls" :key="idx" class="flex gap-2">
+                <div v-for="(url, idx) in form.imageUrls" :key="idx" class="flex gap-1 sm:gap-2">
                   <input v-model="form.imageUrls[idx]" placeholder="圖片網址 https://..."
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
+                    class="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
                   <button type="button" @click="removeImage(idx)" :disabled="form.imageUrls.length === 1"
-                    class="px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
+                    class="shrink-0 px-2 sm:px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
                 </div>
               </div>
             </div>
@@ -130,13 +130,13 @@ function onCancel() {
                   新增規格</button>
               </div>
               <div class="space-y-2">
-                <div v-for="(v, idx) in form.variants" :key="idx" class="flex gap-2">
+                <div v-for="(v, idx) in form.variants" :key="idx" class="flex gap-1 sm:gap-2">
                   <input v-model="v.variantName" placeholder="規格名稱 (如：顏色)"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
+                    class="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
                   <input v-model="v.variantValue" placeholder="規格值 (如：黑色)"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
+                    class="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
                   <button type="button" @click="removeVariant(idx)" :disabled="form.variants.length === 1"
-                    class="px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
+                    class="shrink-0 px-2 sm:px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
                 </div>
               </div>
             </div>
