@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useOrderStore } from '../stores/orders'
+import { statusOptions, getStatusColor, getStatusValue } from '../constants/orderStatus'
 
 const orderStore = useOrderStore()
 
@@ -15,26 +16,8 @@ const emit = defineEmits(['view-detail'])
 
 const updating = ref(false)
 
-const statusOptions = [
-  { value: 1, label: '待付款', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 2, label: '已付款', color: 'bg-blue-100 text-blue-800' },
-  { value: 3, label: '處理中', color: 'bg-purple-100 text-purple-800' },
-  { value: 4, label: '已出貨', color: 'bg-green-100 text-green-800' },
-  { value: 5, label: '已完成', color: 'bg-gray-100 text-gray-800' },
-  { value: 6, label: '已取消', color: 'bg-red-100 text-red-800' }
-]
-
-const statusColors = {
-  '待付款': 'bg-yellow-100 text-yellow-800',
-  '已付款': 'bg-blue-100 text-blue-800',
-  '處理中': 'bg-purple-100 text-purple-800',
-  '已出貨': 'bg-green-100 text-green-800',
-  '已完成': 'bg-gray-100 text-gray-800',
-  '已取消': 'bg-red-100 text-red-800'
-}
-
 const statusColor = computed(() => {
-  return statusColors[props.order.status] || 'bg-gray-100 text-gray-800'
+  return getStatusColor(props.order.status)
 })
 
 const formattedDate = computed(() => {
@@ -64,11 +47,6 @@ async function handleStatusChange(e) {
     // 恢復原狀態
     e.target.value = getStatusValue(props.order.status)
   }
-}
-
-function getStatusValue(statusLabel) {
-  const status = statusOptions.find(s => s.label === statusLabel)
-  return status ? status.value : 1
 }
 
 const currentStatusValue = computed(() => getStatusValue(props.order.status))

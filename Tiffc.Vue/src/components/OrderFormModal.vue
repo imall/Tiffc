@@ -2,6 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useProductStore } from '../stores/products'
 import BaseFormModal from './BaseFormModal.vue'
+import { statusOptions, ORDER_STATUS } from '../constants/orderStatus'
 
 const productStore = useProductStore()
 
@@ -18,7 +19,7 @@ const form = reactive({
   customerName: '',
   customerEmail: '',
   customerPhone: '',
-  status: 1, // 待付款
+  status: ORDER_STATUS.待付款,
   items: []
 })
 
@@ -32,14 +33,6 @@ const currentItem = reactive({
 const selectedProduct = ref(null)
 const submitting = ref(false)
 const errors = ref({})
-
-const statusOptions = [
-  { value: 1, label: '待付款' },
-  { value: 2, label: '已付款' },
-  { value: 3, label: '處理中' },
-  { value: 4, label: '已出貨' },
-  { value: 5, label: '已完成' }
-]
 
 const totalAmount = computed(() => {
   return form.items.reduce((sum, item) => {
@@ -175,7 +168,7 @@ function resetForm() {
   form.customerName = ''
   form.customerEmail = ''
   form.customerPhone = ''
-  form.status = 1
+  form.status = ORDER_STATUS.待付款
   form.items = []
   currentItem.productId = ''
   currentItem.quantity = 1
