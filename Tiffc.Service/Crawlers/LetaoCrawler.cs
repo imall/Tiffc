@@ -6,7 +6,11 @@ namespace Tiffc.Service.Crawlers;
 public class LetaoCrawler : IExchangeRateCrawler
 {
     private readonly HttpClient _httpClient;
-
+    private static readonly Dictionary<string, string> CurrencyMapping = new()
+    {
+        { "日幣", "JPY" },
+        { "美金", "USD" },
+    };
     public ExchangeRateSourceEnum SourceEnum => ExchangeRateSourceEnum.Letao;
 
     public LetaoCrawler(IHttpClientFactory httpClientFactory)
@@ -19,7 +23,7 @@ public class LetaoCrawler : IExchangeRateCrawler
 
     public async Task<List<CrawledExchangeRate>> CrawlAsync()
     {
-        var url = "https://www.letao.com.tw/";
+        const string url = "https://www.letao.com.tw/";
         var html = await _httpClient.GetStringAsync(url);
 
         var htmlDoc = new HtmlDocument();
@@ -27,27 +31,27 @@ public class LetaoCrawler : IExchangeRateCrawler
 
         var rateData = new List<CrawledExchangeRate>();
         var rows = htmlDoc.DocumentNode.SelectNodes("//div[@class='index-aside-column indexBannerExRate']//tr");
-
-        if (rows == null) return rateData;
-
+        
         foreach (var row in rows)
         {
             var currencyCell = row.SelectSingleNode(".//td[@class='k']");
             var rateCell = row.SelectSingleNode(".//td[@class='v']");
 
-            if (currencyCell != null && rateCell != null)
-            {
-                var currency = currencyCell.InnerText.Trim();
-                var rateText = rateCell.InnerText.Trim();
 
-                if (decimal.TryParse(rateText, out var rate))
+            var currency = currencyCell.InnerText.Trim();
+            var rateText = rateCell.InnerText.Trim();
+
+            var normalizedCurrency = CurrencyMapping
+                .FirstOrDefault(kvp => currency.Contains(kvp.Key))
+                .Value ?? currency;
+            
+            if (decimal.TryParse(rateText, out var rate))
+            {
+                rateData.Add(new CrawledExchangeRate
                 {
-                    rateData.Add(new CrawledExchangeRate
-                    {
-                        Currency = currency,
-                        Rate = rate
-                    });
-                }
+                    Currency = normalizedCurrency,
+                    Rate = rate
+                });
             }
         }
 

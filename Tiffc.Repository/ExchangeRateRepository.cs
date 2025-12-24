@@ -13,7 +13,7 @@ public class ExchangeRateRepository(Client supabaseClient)
     /// <summary>
     /// 批次新增匯率記錄
     /// </summary>
-    public async Task<bool> BulkCreateAsync(List<CreateExchangeRateParameter> rates, DateTime crawledAt)
+    public async Task<bool> BulkCreateAsync(List<CreateExchangeRateParameter> rates)
     {
         try
         {
@@ -22,12 +22,11 @@ public class ExchangeRateRepository(Client supabaseClient)
                 Source = r.Source.ToString(),
                 Currency = r.Currency,
                 Rate = r.Rate,
-                CrawledAt = crawledAt
             }).ToList();
             
             await supabaseClient
                 .From<ExchangeRate>()
-                .Insert(entities);
+                .Upsert(entities);
             
             return true;
         }
@@ -94,12 +93,10 @@ public class ExchangeRateRepository(Client supabaseClient)
     {
         return new ExchangeRateModel
         {
-            Id = entity.Id,
             Source = entity.Source,
             Currency = entity.Currency,
             Rate = entity.Rate,
             CrawledAt = entity.CrawledAt.ToLocalTime(),
-            CreatedAt = entity.CreatedAt.ToLocalTime()
         };
     }
 }

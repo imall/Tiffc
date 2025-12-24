@@ -18,7 +18,6 @@ public class ExchangeRateCrawlerService(
     public async Task<Dictionary<ExchangeRateSourceEnum, int>> CrawlAllSourcesAsync()
     {
         var results = new Dictionary<ExchangeRateSourceEnum, int>();
-        var crawledAt = DateTime.UtcNow;
         
         foreach (var crawler in crawlers)
         {
@@ -37,7 +36,7 @@ public class ExchangeRateCrawlerService(
                         Rate = r.Rate
                     }).ToList();
                     
-                    await repository.BulkCreateAsync(parameters, crawledAt);
+                    await repository.BulkCreateAsync(parameters);
                     
                     results[crawler.SourceEnum] = rates.Count;
                     logger.LogInformation("成功爬取 {SourceEnum} 匯率: {Count} 筆", crawler.SourceEnum, rates.Count);
@@ -70,7 +69,6 @@ public class ExchangeRateCrawlerService(
         }
         
         var rates = await crawler.CrawlAsync();
-        var crawledAt = DateTime.UtcNow;
         
         var parameters = rates.Select(r => new CreateExchangeRateParameter
         {
@@ -79,7 +77,7 @@ public class ExchangeRateCrawlerService(
             Rate = r.Rate
         }).ToList();
         
-        await repository.BulkCreateAsync(parameters, crawledAt);
+        await repository.BulkCreateAsync(parameters);
         
         return rates.Count;
     }
