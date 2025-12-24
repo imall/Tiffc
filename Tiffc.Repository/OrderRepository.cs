@@ -231,6 +231,64 @@ public class OrderRepository(Client supabaseClient)
     }
 
     /// <summary>
+    /// 刪除訂單（包含訂單明細和規格）
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <returns>是否刪除成功</returns>
+    public async Task<bool> DeleteOrderAsync(Guid orderId)
+    {
+        try
+        {
+            // 1. 查詢訂單是否存在
+            var existingOrder = await supabaseClient
+                .From<Order>()
+                .Where(o => o.Id == orderId)
+                .Single();
+
+            if (existingOrder == null)
+            {
+                throw new Exception($"找不到訂單 ID: {orderId}");
+            }
+
+            // 2. 查詢訂單明細
+            var orderItemsResponse = await supabaseClient
+                .From<OrderItem>()
+                .Where(oi => oi.OrderId == orderId)
+                .Get();
+
+            var orderItemIds = orderItemsResponse.Models.Select(oi => oi.Id).ToList();
+
+            // 3. 刪除訂單商品規格
+            if (orderItemIds.Any())
+            {
+                await supabaseClient
+                    .From<OrderItemVariant>()
+                    .Filter("order_item_id", Supabase.Postgrest.Constants.Operator.In, orderItemIds)
+                    .Delete();
+            }
+
+            // 4. 刪除訂單明細
+            await supabaseClient
+                .From<OrderItem>()
+                .Where(oi => oi.OrderId == orderId)
+                .Delete();
+
+            // 5. 刪除訂單主表
+            await supabaseClient
+                .From<Order>()
+                .Where(o => o.Id == orderId)
+                .Delete();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+
+    /// <summary>
     /// 生成訂單編號
     /// </summary>
     private static string GenerateOrderNumber()

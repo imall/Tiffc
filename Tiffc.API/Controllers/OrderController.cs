@@ -121,6 +121,50 @@ public class OrderController(OrderService orderService) : ControllerBase
     }
 
     /// <summary>
+    /// 刪除訂單
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <returns></returns>
+    /// <response code="204">刪除成功</response>
+    /// <response code="404">找不到訂單</response>
+    /// <response code="500">伺服器內部錯誤</response>
+    [HttpDelete("{orderId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteOrder(Guid orderId)
+    {
+        try
+        {
+            var result = await orderService.DeleteOrderAsync(orderId);
+            if (!result)
+            {
+                return NotFound(new
+                {
+                    message = $"找不到訂單 ID: {orderId}"
+                });
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex) when (ex.Message.Contains("找不到訂單"))
+        {
+            return NotFound(new
+            {
+                message = $"找不到訂單 ID: {orderId}"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "刪除訂單失敗",
+                error = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
     /// 查詢所有訂單
     /// </summary>
     /// <returns>訂單列表</returns>

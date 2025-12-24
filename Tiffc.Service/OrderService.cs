@@ -58,6 +58,16 @@ public class OrderService(OrderRepository orderRepository, ProductRepository pro
     }
 
     /// <summary>
+    /// 刪除訂單
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <returns>是否刪除成功</returns>
+    public async Task<bool> DeleteOrderAsync(Guid orderId)
+    {
+        return await orderRepository.DeleteOrderAsync(orderId);
+    }
+
+    /// <summary>
     /// 為訂單項目填充商品資訊
     /// </summary>
     private async Task EnrichOrderWithProductInfo(OrderModel order)
