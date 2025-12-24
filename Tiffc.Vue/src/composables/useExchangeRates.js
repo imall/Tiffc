@@ -13,7 +13,7 @@ export function useExchangeRates() {
       const res = await fetch(`${baseUrl}/api/ExchangeRate/latest`)
       if (!res.ok) throw new Error('匯率 API 失敗')
       const data = await res.json()
-      exchangeRates.value = data.filter(e => e.currency.includes('日幣'))
+      exchangeRates.value = data.filter(e => e.currency.includes('JPY'))
     } catch (e) {
       error.value = e
       exchangeRates.value = []
