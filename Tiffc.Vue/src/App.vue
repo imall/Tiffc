@@ -1,11 +1,19 @@
 <script setup>
 import { ref } from 'vue'
 import { useProducts } from './composables/useProducts'
+import { useOrders } from './composables/useOrders'
 import { useImageDownloader } from './composables/useImageDownloader'
 import ProductFormModal from './components/ProductFormModal.vue'
 import ProductCard from './components/ProductCard.vue'
+import OrderCard from './components/OrderCard.vue'
+import OrderFormModal from './components/OrderFormModal.vue'
+import OrderDetailModal from './components/OrderDetailModal.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 
+// 頁面切換
+const currentView = ref('products') // 'products' or 'orders'
+
+// 商品相關
 const { products, loading, refresh, deleteProduct, isDeleting } = useProducts()
 const { downloading, downloadAllImages } = useImageDownloader()
 const showProductForm = ref(false)
@@ -13,6 +21,13 @@ const formMode = ref('add')
 const productToEdit = ref(null)
 const productToDelete = ref(null)
 
+// 訂單相關
+const { orders, loading: ordersLoading, createOrder, fetchOrderByNumber } = useOrders()
+const showOrderForm = ref(false)
+const showOrderDetail = ref(false)
+const selectedOrder = ref(null)
+
+// 商品功能
 function toggleAddForm() {
   formMode.value = 'add'
   productToEdit.value = null
@@ -55,6 +70,41 @@ async function confirmDelete() {
   }
   productToDelete.value = null
 }
+
+// 訂單功能
+function toggleOrderForm() {
+  showOrderForm.value = !showOrderForm.value
+}
+
+function closeOrderForm() {
+  showOrderForm.value = false
+}
+
+async function handleOrderFormSubmit(orderData) {
+  const result = await createOrder(orderData)
+  if (result.success) {
+    closeOrderForm()
+    alert('訂單建立成功！')
+  } else {
+    alert('訂單建立失敗：' + result.error)
+  }
+}
+
+async function handleViewOrderDetail(order) {
+  // 獲取完整訂單資料
+  const fullOrder = await fetchOrderByNumber(order.orderNumber)
+  if (fullOrder) {
+    selectedOrder.value = fullOrder
+    showOrderDetail.value = true
+  } else {
+    alert('無法載入訂單詳情')
+  }
+}
+
+function closeOrderDetail() {
+  showOrderDetail.value = false
+  selectedOrder.value = null
+}
 </script>
 
 <template>
@@ -64,9 +114,29 @@ async function confirmDelete() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <h1 class="text-2xl font-bold tracking-tight text-gray-900">TIFFC 代購清單</h1>
-          <button @click="toggleAddForm"
+
+          <!-- Navigation Tabs -->
+          <div class="flex items-center gap-6">
+            <button @click="currentView = 'products'"
+              :class="currentView === 'products' ? 'text-black border-b-2 border-black' : 'text-gray-500 hover:text-gray-700'"
+              class="py-2 font-medium transition-colors cursor-pointer">
+              商品管理
+            </button>
+            <button @click="currentView = 'orders'"
+              :class="currentView === 'orders' ? 'text-black border-b-2 border-black' : 'text-gray-500 hover:text-gray-700'"
+              class="py-2 font-medium transition-colors cursor-pointer">
+              訂單管理
+            </button>
+          </div>
+
+          <!-- Action Button -->
+          <button v-if="currentView === 'products'" @click="toggleAddForm"
             class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm cursor-pointer">
             {{ showProductForm && formMode === 'add' ? '取消' : '+ 新增商品' }}
+          </button>
+          <button v-else @click="toggleOrderForm"
+            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm cursor-pointer">
+            {{ showOrderForm ? '取消' : '+ 建立訂單' }}
           </button>
         </div>
       </div>
@@ -76,30 +146,64 @@ async function confirmDelete() {
     <ProductFormModal :visible="showProductForm" :mode="formMode" :product="productToEdit" @close="closeProductForm"
       @submitted="onProductFormSubmitted" />
 
+    <!-- Order Form Modal -->
+    <OrderFormModal :visible="showOrderForm" @close="closeOrderForm" @submitted="handleOrderFormSubmit" />
+
+    <!-- Order Detail Modal -->
+    <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail" />
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-20">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-        <p class="mt-4 text-gray-600">讀取中...</p>
+      <!-- Products View -->
+      <div v-if="currentView === 'products'">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-20">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <p class="mt-4 text-gray-600">讀取中...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="products.length === 0" class="text-center py-20">
+          <div class="text-6xl mb-4">📦</div>
+          <h3 class="text-xl font-medium text-gray-900 mb-2">尚無商品</h3>
+          <p class="text-gray-600 mb-6">開始新增您的第一個代購商品</p>
+          <button @click="toggleAddForm"
+            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
+            + 新增商品
+          </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <ProductCard v-for="product in products" :key="product.id" :product="product"
+            :downloading="downloading[product.id] || false" @download="handleDownload" @edit="handleEdit"
+            @delete="handleDelete" />
+        </div>
       </div>
 
-      <!-- Empty State -->
-      <div v-else-if="products.length === 0" class="text-center py-20">
-        <div class="text-6xl mb-4">📦</div>
-        <h3 class="text-xl font-medium text-gray-900 mb-2">尚無商品</h3>
-        <p class="text-gray-600 mb-6">開始新增您的第一個代購商品</p>
-        <button @click="toggleAddForm"
-          class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium">
-          + 新增商品
-        </button>
-      </div>
+      <!-- Orders View -->
+      <div v-else-if="currentView === 'orders'">
+        <!-- Loading State -->
+        <div v-if="ordersLoading" class="text-center py-20">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <p class="mt-4 text-gray-600">讀取中...</p>
+        </div>
 
-      <!-- Products Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <ProductCard v-for="product in products" :key="product.id" :product="product"
-          :downloading="downloading[product.id] || false" @download="handleDownload" @edit="handleEdit"
-          @delete="handleDelete" />
+        <!-- Empty State -->
+        <div v-else-if="orders.length === 0" class="text-center py-20">
+          <div class="text-6xl mb-4">📋</div>
+          <h3 class="text-xl font-medium text-gray-900 mb-2">尚無訂單</h3>
+          <p class="text-gray-600 mb-6">開始建立您的第一筆訂單</p>
+          <button @click="toggleOrderForm"
+            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
+            + 建立訂單
+          </button>
+        </div>
+
+        <!-- Orders Grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <OrderCard v-for="order in orders" :key="order.id" :order="order" @view-detail="handleViewOrderDetail" />
+        </div>
       </div>
     </main>
 
