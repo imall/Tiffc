@@ -97,7 +97,7 @@ function addItemToOrder() {
   form.items.push({
     productId: currentItem.productId,
     productTitle: product?.title || '未知商品',
-    productImageUrl: product?.images?.[0] || null,
+    productImageUrl: product?.imageUrls?.[0] || null,
     productUrl: product?.url || null,
     quantity: currentItem.quantity,
     unitPrice: currentItem.unitPrice,
