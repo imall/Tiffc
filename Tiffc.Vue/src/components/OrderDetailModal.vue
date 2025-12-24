@@ -111,14 +111,46 @@ function handleBackdropClick(e) {
             <h3 class="text-sm font-semibold text-gray-900 mb-3">訂單明細</h3>
             <div class="space-y-3">
               <div v-for="item in order.items" :key="item.id" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div class="flex justify-between items-start mb-3">
-                  <div class="flex-1">
-                    <div class="font-medium text-gray-900 mb-1">商品 ID: {{ item.productId }}</div>
-                    <div class="text-sm text-gray-600">數量: {{ item.quantity }}</div>
+                <div class="flex gap-4 mb-3">
+                  <!-- Product Image -->
+                  <div v-if="item.productInfo?.imageUrl" class="shrink-0">
+                    <a :href="item.productInfo.url" target="_blank" rel="noopener noreferrer"
+                      class="block w-20 h-20 rounded overflow-hidden bg-white border border-gray-200 hover:border-gray-400 transition-colors">
+                      <img :src="item.productInfo.imageUrl" :alt="item.productInfo.title"
+                        class="w-full h-full object-cover" />
+                    </a>
                   </div>
-                  <div class="text-right">
-                    <div class="text-sm text-gray-600">單價: NT$ {{ item.unitPrice.toLocaleString() }}</div>
-                    <div class="font-semibold text-gray-900">小計: NT$ {{ item.subtotal.toLocaleString() }}</div>
+                  <div v-else class="shrink-0 w-20 h-20 rounded bg-gray-200 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+
+                  <!-- Product Info -->
+                  <div class="flex-1 min-w-0">
+                    <div class="mb-2">
+                      <a v-if="item.productInfo?.url" :href="item.productInfo.url" target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-gray-900 hover:text-blue-600 transition-colors inline-flex items-start gap-1 line-clamp-2">
+                        <span class="line-clamp-2">{{ item.productInfo.title }}</span>
+                        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <div v-else class="font-medium text-gray-900 line-clamp-2">{{ item.productInfo?.title || '商品資料載入中...' }}</div>
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-1">
+                      <div>數量: {{ item.quantity }}</div>
+                      <div>單價: NT$ {{ item.unitPrice.toLocaleString() }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Pricing -->
+                  <div class="text-right flex-shrink-0 self-end">
+                    <div class="text-sm text-gray-600">小計</div>
+                    <div class="font-semibold text-gray-900">NT$ {{ item.subtotal.toLocaleString() }}</div>
                   </div>
                 </div>
 
@@ -132,6 +164,14 @@ function handleBackdropClick(e) {
                       <span class="ml-1 font-medium text-gray-900">{{ variant.variantValue }}</span>
                     </span>
                   </div>
+                </div>
+              </div>
+
+              <!-- Items Subtotal -->
+              <div class="bg-white rounded-lg p-4 border-2 border-gray-300 mt-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-base font-semibold text-gray-900">訂單總額</span>
+                  <span class="text-xl font-bold text-gray-900">NT$ {{ order.items?.reduce((sum, item) => sum + item.subtotal, 0).toLocaleString() }}</span>
                 </div>
               </div>
             </div>
