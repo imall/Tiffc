@@ -1,10 +1,12 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useProductStore } from '../stores/products'
+import { useOrderStore } from '../stores/orders'
 import BaseFormModal from './BaseFormModal.vue'
 import { statusOptions, ORDER_STATUS } from '../constants/orderStatus'
 
 const productStore = useProductStore()
+const orderStore = useOrderStore()
 
 const props = defineProps({
   visible: {
@@ -148,7 +150,19 @@ async function handleSubmit() {
       }))
     }
 
-    emit('submitted', orderData)
+    // 直接呼叫 store 建立訂單
+    const result = await orderStore.createOrder(orderData)
+
+    if (result.success) {
+      emit('submitted')
+      resetForm() // 清空表單
+      emit('close')
+      alert('訂單建立成功！')
+    } else {
+      alert('訂單建立失敗：' + result.error)
+    }
+  } catch (error) {
+    alert('訂單建立失敗：' + error.message)
   } finally {
     submitting.value = false
   }

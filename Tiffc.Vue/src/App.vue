@@ -82,14 +82,9 @@ function closeOrderForm() {
   showOrderForm.value = false
 }
 
-async function handleOrderFormSubmit(orderData) {
-  const result = await orderStore.createOrder(orderData)
-  if (result.success) {
-    closeOrderForm()
-    alert('訂單建立成功！')
-  } else {
-    alert('訂單建立失敗：' + result.error)
-  }
+async function handleOrderFormSubmit() {
+  // 訂單建立成功後重新載入訂單列表
+  await orderStore.refresh()
 }
 
 async function handleViewOrderDetail(order) {
