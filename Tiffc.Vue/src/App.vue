@@ -28,6 +28,7 @@ const productToDelete = ref(null)
 const showOrderForm = ref(false)
 const showOrderDetail = ref(false)
 const selectedOrder = ref(null)
+const orderToDelete = ref(null)
 
 // 商品功能
 function toggleAddForm() {
@@ -102,6 +103,29 @@ function closeOrderDetail() {
   showOrderDetail.value = false
   selectedOrder.value = null
 }
+
+function handleOrderDelete(order) {
+  orderToDelete.value = order
+}
+
+function cancelOrderDelete() {
+  orderToDelete.value = null
+}
+
+async function confirmOrderDelete() {
+  if (!orderToDelete.value) return
+
+  const success = await orderStore.deleteOrder(orderToDelete.value.id)
+  if (success) {
+    // 如果刪除的是當前顯示的訂單，關閉詳情彈窗
+    if (selectedOrder.value?.id === orderToDelete.value.id) {
+      closeOrderDetail()
+    }
+  } else {
+    alert('刪除訂單失敗，請稍後再試')
+  }
+  orderToDelete.value = null
+}
 </script>
 
 <template>
@@ -165,7 +189,8 @@ function closeOrderDetail() {
     <OrderFormModal :visible="showOrderForm" @close="closeOrderForm" @submitted="handleOrderFormSubmit" />
 
     <!-- Order Detail Modal -->
-    <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail" />
+    <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail"
+      @delete="handleOrderDelete" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -223,13 +248,23 @@ function closeOrderDetail() {
       </div>
     </main>
 
-    <!-- Delete Confirmation Dialog -->
+    <!-- Delete Product Confirmation Dialog -->
     <ConfirmDialog :visible="!!productToDelete" title="確認刪除商品" confirm-text="確認刪除" cancel-text="取消"
       confirm-button-class="bg-red-500 hover:bg-red-600" :loading="productStore.isDeleting" @confirm="confirmDelete"
       @cancel="cancelDelete">
       <p class="text-gray-600 mb-2">確定要刪除以下商品嗎？</p>
       <p class="text-gray-900 font-medium mb-4">「{{ productToDelete?.title }}」</p>
       <p class="text-sm text-gray-500">此操作無法復原，商品及其所有規格資料將被永久刪除。</p>
+    </ConfirmDialog>
+
+    <!-- Delete Order Confirmation Dialog -->
+    <ConfirmDialog :visible="!!orderToDelete" title="確認刪除訂單" confirm-text="確認刪除" cancel-text="取消"
+      confirm-button-class="bg-red-500 hover:bg-red-600" :loading="orderStore.isDeleting" @confirm="confirmOrderDelete"
+      @cancel="cancelOrderDelete">
+      <p class="text-gray-600 mb-2">確定要刪除以下訂單嗎？</p>
+      <p class="text-gray-900 font-medium mb-4">訂單編號：<span class="font-mono">{{ orderToDelete?.orderNumber }}</span></p>
+      <p class="text-gray-600 mb-2">顧客：{{ orderToDelete?.customerName }}</p>
+      <p class="text-sm text-gray-500">此操作無法復原，訂單及其所有明細將被永久刪除。</p>
     </ConfirmDialog>
   </div>
 </template>

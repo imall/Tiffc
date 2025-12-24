@@ -12,7 +12,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'delete'])
 
 const statusColors = {
   '待付款': 'bg-yellow-100 text-yellow-800',
@@ -41,6 +41,10 @@ const formattedDate = computed(() => {
 
 function handleClose() {
   emit('close')
+}
+
+function handleDelete() {
+  emit('delete', props.order)
 }
 
 function handleBackdropClick(e) {
@@ -139,7 +143,8 @@ function handleBackdropClick(e) {
                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       </a>
-                      <div v-else class="font-medium text-gray-900 line-clamp-2">{{ item.productInfo?.title || '商品資料載入中...' }}</div>
+                      <div v-else class="font-medium text-gray-900 line-clamp-2">{{ item.productInfo?.title ||
+                        '商品資料載入中...' }}</div>
                     </div>
                     <div class="text-sm text-gray-600 space-y-1">
                       <div>數量: {{ item.quantity }}</div>
@@ -171,7 +176,8 @@ function handleBackdropClick(e) {
               <div class="bg-white rounded-lg p-4 border-2 border-gray-300 mt-3">
                 <div class="flex justify-between items-center">
                   <span class="text-base font-semibold text-gray-900">訂單總額</span>
-                  <span class="text-xl font-bold text-gray-900">NT$ {{ order.items?.reduce((sum, item) => sum + item.subtotal, 0).toLocaleString() }}</span>
+                  <span class="text-xl font-bold text-gray-900">NT$ {{order.items?.reduce((sum, item) => sum +
+                    item.subtotal, 0).toLocaleString() }}</span>
                 </div>
               </div>
             </div>
@@ -187,7 +193,11 @@ function handleBackdropClick(e) {
         </div>
 
         <!-- Footer -->
-        <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end">
+        <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between">
+          <button @click="handleDelete"
+            class="px-6 py-2.5 bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors font-medium cursor-pointer">
+            刪除訂單
+          </button>
           <button @click="handleClose"
             class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
             關閉

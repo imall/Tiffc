@@ -9,6 +9,7 @@ export const useOrderStore = defineStore('orders', () => {
   const loading = ref(false)
   const error = ref('')
   const creating = ref(false)
+  const isDeleting = ref(false)
 
   // Actions
   async function fetchOrders() {
@@ -95,6 +96,28 @@ export const useOrderStore = defineStore('orders', () => {
     }
   }
 
+  async function deleteOrder(orderId) {
+    isDeleting.value = true
+    error.value = ''
+    try {
+      const res = await fetch(`${baseUrl}/api/Order/${orderId}`, {
+        method: 'DELETE'
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || `${res.status} ${res.statusText}`)
+      }
+      // 從本地列表中移除已刪除的訂單
+      orders.value = orders.value.filter(o => o.id !== orderId)
+      return true
+    } catch (e) {
+      error.value = '刪除訂單失敗: ' + e.message
+      return false
+    } finally {
+      isDeleting.value = false
+    }
+  }
+
   // 初始化時自動載入
   fetchOrders()
 
@@ -104,11 +127,13 @@ export const useOrderStore = defineStore('orders', () => {
     loading,
     error,
     creating,
+    isDeleting,
     // Actions
     fetchOrders,
     fetchOrderByNumber,
     createOrder,
     updateOrderStatus,
+    deleteOrder,
     refresh
   }
 })
