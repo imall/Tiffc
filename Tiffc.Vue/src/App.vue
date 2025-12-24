@@ -69,7 +69,7 @@ async function confirmDelete() {
 
   const success = await productStore.deleteProduct(productToDelete.value.id)
   if (!success) {
-    alert('刪除商品失敗，請稍後再試')
+    alert(productStore.error || '刪除商品失敗，請稍後再試')
   }
   productToDelete.value = null
 }

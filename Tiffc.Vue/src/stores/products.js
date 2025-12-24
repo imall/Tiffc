@@ -32,7 +32,16 @@ export const useProductStore = defineStore('products', () => {
       const res = await fetch(`${baseUrl}/product/${productId}`, {
         method: 'DELETE'
       })
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+
+      if (!res.ok) {
+        // 嘗試解析錯誤訊息
+        let errorMsg = `${res.status} ${res.statusText}`
+
+        const errorData = await res.json()
+        errorMsg = errorData.reason || errorData.message || errorMsg
+
+        throw new Error(errorMsg)
+      }
       // 從本地列表中移除已刪除的商品
       products.value = products.value.filter(p => p.id !== productId)
       return true
