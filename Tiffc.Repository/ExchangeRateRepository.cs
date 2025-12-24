@@ -41,11 +41,10 @@ public class ExchangeRateRepository(Client supabaseClient)
     /// </summary>
     public async Task<List<ExchangeRateModel>> GetLatestRatesBySourceAsync(ExchangeRateSourceEnum source)
     {
+        var sourceString = source.ToString();
         var response = await supabaseClient
             .From<ExchangeRate>()
-            .Where(x => x.Source == source.ToString())
-            .Order(x => x.CrawledAt, Constants.Ordering.Descending)
-            .Limit(10)
+            .Where(x => x.Source == sourceString)
             .Get();
         
         return response.Models.Select(MapToModel).ToList();
@@ -56,37 +55,11 @@ public class ExchangeRateRepository(Client supabaseClient)
     /// </summary>
     public async Task<List<ExchangeRateModel>> GetAllLatestRatesAsync()
     {
-        // 這個查詢比較複雜,需要取得每個 source + currency 組合的最新一筆
         var allRates = await supabaseClient
             .From<ExchangeRate>()
-            .Order(x => x.CrawledAt, Constants.Ordering.Descending)
-            .Limit(100)
             .Get();
-        
-        // 在記憶體中分組取最新
-        var latestRates = allRates.Models
-            .GroupBy(x => new { x.Source, x.Currency })
-            .Select(g => g.OrderByDescending(x => x.CrawledAt).First())
-            .ToList();
-        
-        return latestRates.Select(MapToModel).ToList();
-    }
-    
-    /// <summary>
-    /// 取得特定幣別的歷史匯率
-    /// </summary>
-    public async Task<List<ExchangeRateModel>> GetHistoryAsync(ExchangeRateSourceEnum source, string currency, int days = 30)
-    {
-        var startDate = DateTime.UtcNow.AddDays(-days);
-        
-        var response = await supabaseClient
-            .From<ExchangeRate>()
-            .Where(x => x.Source == source.ToString() && x.Currency == currency)
-            .Filter("crawled_at", Constants.Operator.GreaterThanOrEqual, startDate.ToString("o"))
-            .Order(x => x.CrawledAt, Constants.Ordering.Descending)
-            .Get();
-        
-        return response.Models.Select(MapToModel).ToList();
+     
+        return allRates.Models.Select(MapToModel).ToList();
     }
     
     private static ExchangeRateModel MapToModel(ExchangeRate entity)

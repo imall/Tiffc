@@ -67,14 +67,4 @@ public class ExchangeRateController : ControllerBase
         var rates = await _repository.GetLatestRatesBySourceAsync(source);
         return Ok(rates);
     }
-    
-    /// <summary>
-    /// 取得歷史匯率
-    /// </summary>
-    [HttpGet("history/{source}/{currency}")]
-    public async Task<IActionResult> GetHistory(ExchangeRateSourceEnum source, string currency, [FromQuery] int days = 30)
-    {
-        var rates = await _repository.GetHistoryAsync(source, currency, days);
-        return Ok(rates);
-    }
 }
