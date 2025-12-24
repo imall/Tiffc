@@ -277,8 +277,14 @@ public class ProductRepository(Client supabaseClient)
 
             return true;
         }
-        catch
+        catch (Supabase.Postgrest.Exceptions.PostgrestException ex) when (ex.Message.Contains("23503"))
         {
+            // 外鍵約束錯誤 - 有訂單引用此商品
+            throw new InvalidOperationException("此商品已被訂單使用，無法刪除", ex);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
             return false;
         }
     }

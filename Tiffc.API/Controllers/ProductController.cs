@@ -84,11 +84,30 @@ public class ProductController(ProductService productService) : ControllerBase
     [HttpDelete("{productId:guid}")]
     public async Task<ActionResult> DeleteProduct(Guid productId)
     {
-        var result = await productService.DeleteProductAsync(productId);
-        if (!result)
-            return NotFound($"找不到商品 ID: {productId}");
+        try
+        {
+            var result = await productService.DeleteProductAsync(productId);
+            if (!result)
+                return NotFound($"找不到商品 ID: {productId}");
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("已被訂單使用"))
+        {
+            return Conflict(new
+            {
+                message = "無法刪除商品",
+                reason = "此商品已被訂單使用，無法刪除。請先處理相關訂單。"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "刪除商品失敗",
+                error = ex.Message
+            });
+        }
     }
     
     /// <summary>
