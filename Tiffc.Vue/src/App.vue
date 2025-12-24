@@ -89,13 +89,17 @@ async function handleOrderFormSubmit() {
 }
 
 async function handleViewOrderDetail(order) {
+  // 立即打開彈窗顯示 loading
+  showOrderDetail.value = true
+  selectedOrder.value = null // 清空舊資料
+
   // 獲取完整訂單資料
   const fullOrder = await orderStore.fetchOrderByNumber(order.orderNumber)
   if (fullOrder) {
     selectedOrder.value = fullOrder
-    showOrderDetail.value = true
   } else {
     alert('無法載入訂單詳情')
+    closeOrderDetail()
   }
 }
 
@@ -189,8 +193,8 @@ async function confirmOrderDelete() {
     <OrderFormModal :visible="showOrderForm" @close="closeOrderForm" @submitted="handleOrderFormSubmit" />
 
     <!-- Order Detail Modal -->
-    <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail"
-      @delete="handleOrderDelete" />
+    <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" :loading="orderStore.loadingDetail"
+      @close="closeOrderDetail" @delete="handleOrderDelete" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

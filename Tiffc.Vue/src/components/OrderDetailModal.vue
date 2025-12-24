@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue'
+import { useOrderStore } from '../stores/orders'
+
+const orderStore = useOrderStore()
 
 const props = defineProps({
   visible: {
@@ -9,6 +12,10 @@ const props = defineProps({
   order: {
     type: Object,
     default: null
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -56,9 +63,18 @@ function handleBackdropClick(e) {
 
 <template>
   <Transition name="modal">
-    <div v-if="visible && order" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+    <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
       @click="handleBackdropClick">
-      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl" @click.stop>
+      <!-- Loading State -->
+      <div v-if="loading || !order" class="bg-white rounded-lg p-8 shadow-xl" @click.stop>
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-black mb-4"></div>
+          <p class="text-gray-700 font-medium">讀取中...</p>
+        </div>
+      </div>
+
+      <!-- Order Detail Content -->
+      <div v-else class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl" @click.stop>
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <div class="flex items-center gap-4">
@@ -177,7 +193,7 @@ function handleBackdropClick(e) {
                 <div class="flex justify-between items-center">
                   <span class="text-base font-semibold text-gray-900">訂單總額</span>
                   <span class="text-xl font-bold text-gray-900">NT$ {{order.items?.reduce((sum, item) => sum +
-                    item.subtotal, 0).toLocaleString() }}</span>
+                    item.subtotal, 0).toLocaleString()}}</span>
                 </div>
               </div>
             </div>

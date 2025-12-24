@@ -7,6 +7,7 @@ export const useOrderStore = defineStore('orders', () => {
   // State
   const orders = ref([])
   const loading = ref(false)
+  const loadingDetail = ref(false)
   const error = ref('')
   const creating = ref(false)
   const isDeleting = ref(false)
@@ -28,7 +29,7 @@ export const useOrderStore = defineStore('orders', () => {
   }
 
   async function fetchOrderByNumber(orderNumber) {
-    loading.value = true
+    loadingDetail.value = true
     error.value = ''
     try {
       const res = await fetch(`${baseUrl}/api/Order/${orderNumber}`)
@@ -38,7 +39,7 @@ export const useOrderStore = defineStore('orders', () => {
       error.value = '讀取訂單詳情失敗: ' + e.message
       return null
     } finally {
-      loading.value = false
+      loadingDetail.value = false
     }
   }
 
@@ -125,6 +126,7 @@ export const useOrderStore = defineStore('orders', () => {
     // State
     orders,
     loading,
+    loadingDetail,
     error,
     creating,
     isDeleting,
