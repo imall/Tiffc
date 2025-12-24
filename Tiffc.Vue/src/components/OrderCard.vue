@@ -1,5 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useOrderStore } from '../stores/orders'
+
+const orderStore = useOrderStore()
 
 const props = defineProps({
   order: {
@@ -9,6 +12,17 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['view-detail'])
+
+const updating = ref(false)
+
+const statusOptions = [
+  { value: 1, label: '待付款', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 2, label: '已付款', color: 'bg-blue-100 text-blue-800' },
+  { value: 3, label: '處理中', color: 'bg-purple-100 text-purple-800' },
+  { value: 4, label: '已出貨', color: 'bg-green-100 text-green-800' },
+  { value: 5, label: '已完成', color: 'bg-gray-100 text-gray-800' },
+  { value: 6, label: '已取消', color: 'bg-red-100 text-red-800' }
+]
 
 const statusColors = {
   '待付款': 'bg-yellow-100 text-yellow-800',
@@ -36,6 +50,28 @@ const formattedDate = computed(() => {
 const itemCount = computed(() => {
   return props.order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0
 })
+
+async function handleStatusChange(e) {
+  const newStatus = parseInt(e.target.value)
+  if (updating.value) return
+
+  updating.value = true
+  const result = await orderStore.updateOrderStatus(props.order.id, newStatus)
+  updating.value = false
+
+  if (!result.success) {
+    alert('更新訂單狀態失敗: ' + result.error)
+    // 恢復原狀態
+    e.target.value = getStatusValue(props.order.status)
+  }
+}
+
+function getStatusValue(statusLabel) {
+  const status = statusOptions.find(s => s.label === statusLabel)
+  return status ? status.value : 1
+}
+
+const currentStatusValue = computed(() => getStatusValue(props.order.status))
 </script>
 
 <template>
@@ -46,9 +82,21 @@ const itemCount = computed(() => {
         <div class="text-sm text-gray-500 mb-1">訂單編號</div>
         <div class="font-mono text-lg font-semibold text-gray-900">{{ order.orderNumber }}</div>
       </div>
-      <span :class="statusColor" class="px-3 py-1 rounded-full text-xs font-medium">
-        {{ order.status }}
-      </span>
+      <div class="relative">
+        <select :value="currentStatusValue" @change="handleStatusChange" :disabled="updating"
+          :class="[statusColor, 'px-3 py-1 rounded-full text-xs font-medium cursor-pointer border-0 appearance-none pr-7 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-400']">
+          <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+        <div class="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
     </div>
 
     <!-- Customer Info -->

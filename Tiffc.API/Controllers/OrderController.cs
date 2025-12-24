@@ -85,7 +85,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     /// 更新訂單狀態
     /// </summary>
     /// <param name="orderId">訂單 ID</param>
-    /// <param name="status">新狀態 (1:待付款, 2:已付款, 3:已出貨, 4:已完成, 5:已取消)</param>
+    /// <param name="status">新狀態 (1:待付款, 2:已付款, 3:處理中, 4:已出貨, 5:已取消)</param>
     /// <returns>更新後的訂單資料</returns>
     /// <response code="200">狀態更新成功</response>
     /// <response code="400">請求參數錯誤</response>

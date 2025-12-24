@@ -72,6 +72,29 @@ export const useOrderStore = defineStore('orders', () => {
     return fetchOrders()
   }
 
+  async function updateOrderStatus(orderId, status) {
+    error.value = ''
+    try {
+      const res = await fetch(`${baseUrl}/api/Order/${orderId}/status/${status}`, {
+        method: 'PATCH'
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || `${res.status} ${res.statusText}`)
+      }
+      const updatedOrder = await res.json()
+      // 更新本地列表中的訂單
+      const index = orders.value.findIndex(o => o.id === orderId)
+      if (index !== -1) {
+        orders.value[index] = updatedOrder
+      }
+      return { success: true, order: updatedOrder }
+    } catch (e) {
+      error.value = '更新訂單狀態失敗: ' + e.message
+      return { success: false, error: e.message }
+    }
+  }
+
   // 初始化時自動載入
   fetchOrders()
 
@@ -85,6 +108,7 @@ export const useOrderStore = defineStore('orders', () => {
     fetchOrders,
     fetchOrderByNumber,
     createOrder,
+    updateOrderStatus,
     refresh
   }
 })
