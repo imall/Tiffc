@@ -69,7 +69,7 @@ function onCancel() {
         <div class="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-6">
           <div class="space-y-4">
             <!-- 基本資訊 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
 
               <label class="flex flex-col col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">商品網址 *</span>
