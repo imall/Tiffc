@@ -199,6 +199,38 @@ public class OrderRepository(Client supabaseClient)
     }
 
     /// <summary>
+    /// 更新訂單狀態
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="status">新狀態</param>
+    /// <returns>更新後的訂單</returns>
+    public async Task<OrderModel> UpdateOrderStatusAsync(Guid orderId, StatusEnum status)
+    {
+        // 查詢訂單是否存在
+        var existingOrder = await supabaseClient
+            .From<Order>()
+            .Where(o => o.Id == orderId)
+            .Single();
+
+        if (existingOrder == null)
+        {
+            throw new Exception($"找不到訂單 ID: {orderId}");
+        }
+
+        // 更新狀態
+        existingOrder.Status = status.ToString();
+        
+        var updateResponse = await supabaseClient
+            .From<Order>()
+            .Update(existingOrder);
+
+        var updatedOrder = updateResponse.Models.First();
+
+        // 查詢完整的訂單資料並返回
+        return await GetOrderByIdAsync(updatedOrder.OrderNumber);
+    }
+
+    /// <summary>
     /// 生成訂單編號
     /// </summary>
     private static string GenerateOrderNumber()

@@ -82,6 +82,45 @@ public class OrderController(OrderService orderService) : ControllerBase
     }
 
     /// <summary>
+    /// 更新訂單狀態
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="status">新狀態 (1:待付款, 2:已付款, 3:已出貨, 4:已完成, 5:已取消)</param>
+    /// <returns>更新後的訂單資料</returns>
+    /// <response code="200">狀態更新成功</response>
+    /// <response code="400">請求參數錯誤</response>
+    /// <response code="404">找不到訂單</response>
+    /// <response code="500">伺服器內部錯誤</response>
+    [HttpPatch("{orderId}/status/{status}")]
+    [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OrderModel>> UpdateOrderStatus(Guid orderId, StatusEnum status)
+    {
+        try
+        {
+            var order = await orderService.UpdateOrderStatusAsync(orderId, status);
+            return Ok(order);
+        }
+        catch (Exception ex) when (ex.Message.Contains("找不到訂單"))
+        {
+            return NotFound(new
+            {
+                message = $"找不到訂單 ID: {orderId}"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "更新訂單狀態失敗",
+                error = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
     /// 查詢所有訂單
     /// </summary>
     /// <returns>訂單列表</returns>

@@ -45,6 +45,19 @@ public class OrderService(OrderRepository orderRepository, ProductRepository pro
     }
 
     /// <summary>
+    /// 更新訂單狀態
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="status">新狀態</param>
+    /// <returns>更新後的訂單</returns>
+    public async Task<OrderModel> UpdateOrderStatusAsync(Guid orderId, StatusEnum status)
+    {
+        var order = await orderRepository.UpdateOrderStatusAsync(orderId, status);
+        await EnrichOrderWithProductInfo(order);
+        return order;
+    }
+
+    /// <summary>
     /// 為訂單項目填充商品資訊
     /// </summary>
     private async Task EnrichOrderWithProductInfo(OrderModel order)
