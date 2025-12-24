@@ -14,7 +14,7 @@ export function useProductForm() {
     shopName: 'ZOZOTOWN',
     category: '衣服',
     notes: '',
-    variants: [{ variantName: '', variantValue: '' }]
+    variantGroups: [{ name: '', values: [''] }]
   })
 
   const error = ref('')
@@ -27,11 +27,17 @@ export function useProductForm() {
     form.imageUrls.splice(index, 1)
   }
 
-  function addVariant() {
-    form.variants.push({ variantName: '', variantValue: '' })
+  function addVariantGroup() {
+    form.variantGroups.push({ name: '', values: [''] })
   }
-  function removeVariant(index) {
-    form.variants.splice(index, 1)
+  function removeVariantGroup(index) {
+    form.variantGroups.splice(index, 1)
+  }
+  function addVariantValue(groupIndex) {
+    form.variantGroups[groupIndex].values.push('')
+  }
+  function removeVariantValue(groupIndex, valueIndex) {
+    form.variantGroups[groupIndex].values.splice(valueIndex, 1)
   }
 
   function clearForm() {
@@ -45,7 +51,7 @@ export function useProductForm() {
     form.shopName = 'ZOZOTOWN'
     form.category = '衣服'
     form.notes = ''
-    form.variants = [{ variantName: '', variantValue: '' }]
+    form.variantGroups = [{ name: '', values: [''] }]
     error.value = ''
   }
 
@@ -62,9 +68,18 @@ export function useProductForm() {
     form.shopName = product.shopName || 'ZOZOTOWN'
     form.category = product.category || '衣服'
     form.notes = product.notes || ''
-    form.variants = product.variants && product.variants.length > 0
-      ? product.variants.map(v => ({ variantName: v.variantName || '', variantValue: v.variantValue || '' }))
-      : [{ variantName: '', variantValue: '' }]
+
+    // 將舊的 variants 格式轉換為新的 variantGroups 格式
+    if (product.variants && product.variants.length > 0) {
+      const grouped = {}
+      product.variants.forEach(v => {
+        if (!grouped[v.variantName]) grouped[v.variantName] = []
+        grouped[v.variantName].push(v.variantValue)
+      })
+      form.variantGroups = Object.entries(grouped).map(([name, values]) => ({ name, values }))
+    } else {
+      form.variantGroups = [{ name: '', values: [''] }]
+    }
     error.value = ''
   }
 
@@ -83,9 +98,12 @@ export function useProductForm() {
       shopName: form.shopName,
       category: form.category,
       notes: form.notes,
-      variants: form.variants
-        .filter(v => (v.variantName && v.variantName.trim() !== '') || (v.variantValue && v.variantValue.trim() !== ''))
-        .map(v => ({ variantName: v.variantName, variantValue: v.variantValue }))
+      variants: form.variantGroups
+        .filter(g => g.name && g.name.trim() !== '')
+        .flatMap(g => g.values
+          .filter(v => v && v.trim() !== '')
+          .map(v => ({ variantName: g.name, variantValue: v }))
+        )
     }
 
     try {
@@ -124,9 +142,12 @@ export function useProductForm() {
       shopName: form.shopName,
       category: form.category,
       notes: form.notes,
-      variants: form.variants
-        .filter(v => (v.variantName && v.variantName.trim() !== '') || (v.variantValue && v.variantValue.trim() !== ''))
-        .map(v => ({ variantName: v.variantName, variantValue: v.variantValue }))
+      variants: form.variantGroups
+        .filter(g => g.name && g.name.trim() !== '')
+        .flatMap(g => g.values
+          .filter(v => v && v.trim() !== '')
+          .map(v => ({ variantName: g.name, variantValue: v }))
+        )
     }
 
     try {
@@ -150,5 +171,5 @@ export function useProductForm() {
     }
   }
 
-  return { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct, updateProduct, loadProduct }
+  return { form, error, isSubmitting, addImage, removeImage, addVariantGroup, removeVariantGroup, addVariantValue, removeVariantValue, clearForm, submitProduct, updateProduct, loadProduct }
 }

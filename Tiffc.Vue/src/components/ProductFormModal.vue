@@ -10,7 +10,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'submitted'])
 
-const { form, error, isSubmitting, addImage, removeImage, addVariant, removeVariant, clearForm, submitProduct, updateProduct, loadProduct } = useProductForm()
+const { form, error, isSubmitting, addImage, removeImage, addVariantGroup, removeVariantGroup, addVariantValue, removeVariantValue, clearForm, submitProduct, updateProduct, loadProduct } = useProductForm()
 
 // 使用 composable 取得匯率
 const { fetchExchangeRates, getSitePrices } = useExchangeRates()
@@ -106,7 +106,7 @@ function onCancel() {
                   placeholder="0" />
               </label>
 
-          
+
 
               <label class="flex flex-col">
                 <span class="text-sm font-medium text-red-700 mb-1.5">日幣特價 *</span>
@@ -114,7 +114,7 @@ function onCancel() {
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
               </label>
-              
+
               <div class="flex flex-col justify-center col-span-2">
                 <span class="text-sm font-medium text-gray-700 mb-1.5">各代購網站台幣售價</span>
                 <div v-if="sitePrices.length">
@@ -168,18 +168,31 @@ function onCancel() {
             <div class="border-t border-gray-200 pt-4">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-medium text-gray-700">規格選項 (顏色、尺寸等)</span>
-                <button type="button" @click="addVariant"
+                <button type="button" @click="addVariantGroup"
                   class="text-sm text-black hover:text-gray-700 font-medium cursor-pointer">+
                   新增規格</button>
               </div>
-              <div class="space-y-2">
-                <div v-for="(v, idx) in form.variants" :key="idx" class="flex gap-1 sm:gap-2">
-                  <input v-model="v.variantName" placeholder="規格名稱 (如：顏色)"
-                    class="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
-                  <input v-model="v.variantValue" placeholder="規格值 (如：黑色)"
-                    class="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm" />
-                  <button type="button" @click="removeVariant(idx)" :disabled="form.variants.length === 1"
-                    class="shrink-0 px-2 sm:px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
+              <div class="space-y-4">
+                <div v-for="(group, groupIdx) in form.variantGroups" :key="groupIdx"
+                  class="border border-gray-200 rounded-sm p-3 bg-gray-50">
+                  <div class="flex gap-2 items-center mb-2">
+                    <input v-model="group.name" placeholder="規格名稱 (如：顏色)"
+                      class="flex-1 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm bg-white" />
+                    <button type="button" @click="removeVariantGroup(groupIdx)"
+                      :disabled="form.variantGroups.length === 1"
+                      class="shrink-0 px-2 sm:px-3 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium">刪除</button>
+                  </div>
+                  <div class="space-y-2 pl-2">
+                    <div v-for="(val, valIdx) in group.values" :key="valIdx" class="flex gap-2 items-center">
+                      <input v-model="group.values[valIdx]" placeholder="規格值 (如：藍色)"
+                        class="flex-1 px-2 sm:px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none text-sm bg-white" />
+                      <button type="button" @click="removeVariantValue(groupIdx, valIdx)"
+                        :disabled="group.values.length === 1"
+                        class="shrink-0 px-2 text-red-600 hover:text-red-800 disabled:opacity-30 disabled:cursor-not-allowed text-sm">×</button>
+                    </div>
+                    <button type="button" @click="addVariantValue(groupIdx)"
+                      class="text-xs text-gray-600 hover:text-black font-medium cursor-pointer">+ 新增選項</button>
+                  </div>
                 </div>
               </div>
             </div>
