@@ -98,6 +98,11 @@ public class OrderItemModel
     /// 商品規格
     /// </summary>
     public List<OrderItemVariantModel>? Variants { get; set; }
+    
+    /// <summary>
+    /// 商品資訊
+    /// </summary>
+    public ProductInfoModel? ProductInfo { get; set; }
 }
 
 /// <summary>
@@ -129,4 +134,28 @@ public class OrderItemVariantModel
     /// 建立時間
     /// </summary>
     public DateTime CreatedAt { get; set; }
+}
+
+
+/// <summary>
+/// 商品簡要資訊 Model（用於訂單中顯示）
+/// </summary>
+public class ProductInfoModel
+{
+    /// <summary>
+    /// 商品連結
+    /// </summary>
+    public string? Url { get; set; }
+
+    /// <summary>
+    /// 商品標題
+    /// </summary>
+    public string Title { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// 圖片 URL，用來建立簡單商品縮圖
+    /// </summary>
+    public string? ImageUrl { get; set; }
+    
+
 }

@@ -46,6 +46,35 @@ public class ProductRepository(Client supabaseClient)
     }
 
     /// <summary>
+    /// 根據 ID 查詢單一商品(含規格)
+    /// </summary>
+    public async Task<ProductModel?> GetByIdAsync(Guid productId)
+    {
+        // 1. 查詢商品
+        var productResponse = await supabaseClient
+            .From<Product>()
+            .Where(x => x.Id == productId)
+            .Single();
+
+        if (productResponse == null)
+            return null;
+
+        // 2. 查詢該商品的規格
+        var variantsResponse = await supabaseClient
+            .From<ProductVariant>()
+            .Where(v => v.ProductId == productId)
+            .Get();
+
+        // 3. 組合商品和規格
+        var productModel = MapToModel(productResponse);
+        productModel.Variants = variantsResponse.Models.Any()
+            ? variantsResponse.Models.Select(MapToProductVariantModel).ToList()
+            : [];
+
+        return productModel;
+    }
+
+    /// <summary>
     /// 新增一筆商品
     /// </summary>
     public async Task<ProductModel?> CreateProductAsync(CreateProductParameter createDto)

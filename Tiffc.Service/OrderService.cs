@@ -3,7 +3,7 @@ using Tiffc.Repository;
 
 namespace Tiffc.Service;
 
-public class OrderService(OrderRepository repository)
+public class OrderService(OrderRepository orderRepository, ProductRepository productRepository)
 {
     /// <summary>
     /// 建立訂單
@@ -12,7 +12,9 @@ public class OrderService(OrderRepository repository)
     /// <returns></returns>
     public async Task<OrderModel> CreateOrderAsync(CreateOrderParameter parameter)
     {
-        return await repository.CreateOrderAsync(parameter);
+        var order = await orderRepository.CreateOrderAsync(parameter);
+        await EnrichOrderWithProductInfo(order);
+        return order;
     }
 
     /// <summary>
@@ -22,7 +24,9 @@ public class OrderService(OrderRepository repository)
     /// <returns></returns>
     public async Task<OrderModel> GetOrderByIdAsync(string orderNumber)
     {
-        return await repository.GetOrderByIdAsync(orderNumber);
+        var order = await orderRepository.GetOrderByIdAsync(orderNumber);
+        await EnrichOrderWithProductInfo(order);
+        return order;
     }
 
 
@@ -32,6 +36,56 @@ public class OrderService(OrderRepository repository)
     /// <returns></returns>
     public async Task<IEnumerable<OrderModel>> GetAllOrdersAsync()
     {
-        return await repository.GetAllOrdersAsync();
+        var orders = await orderRepository.GetAllOrdersAsync();
+        foreach (var order in orders)
+        {
+            await EnrichOrderWithProductInfo(order);
+        }
+        return orders;
+    }
+
+    /// <summary>
+    /// 為訂單項目填充商品資訊
+    /// </summary>
+    private async Task EnrichOrderWithProductInfo(OrderModel order)
+    {
+        if (order.Items == null || !order.Items.Any())
+            return;
+
+        // 收集所有商品 ID
+        var productIds = order.Items.Select(item => item.ProductId).Distinct().ToList();
+
+        // 批量查詢商品資訊
+        var products = new Dictionary<Guid, ProductModel>();
+        foreach (var productId in productIds)
+        {
+            try
+            {
+                var product = await productRepository.GetByIdAsync(productId);
+                if (product != null)
+                {
+                    products[productId] = product;
+                }
+            }
+            catch
+            {
+                // 如果查詢失敗，繼續處理其他商品
+                continue;
+            }
+        }
+
+        // 為每個訂單項目填充商品資訊
+        foreach (var item in order.Items)
+        {
+            if (products.TryGetValue(item.ProductId, out var product))
+            {
+                item.ProductInfo = new ProductInfoModel
+                {
+                    Title = product.Title,
+                    ImageUrl = product.ImageUrls?.FirstOrDefault(),
+                    Url = product.Url
+                };
+            }
+        }
     }
 }
