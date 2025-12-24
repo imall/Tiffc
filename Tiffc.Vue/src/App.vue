@@ -165,7 +165,8 @@ function closeOrderDetail() {
       @submitted="onProductFormSubmitted" />
 
     <!-- Order Form Modal -->
-    <OrderFormModal :visible="showOrderForm" @close="closeOrderForm" @submitted="handleOrderFormSubmit" />
+    <OrderFormModal :visible="showOrderForm" :products="products" @close="closeOrderForm"
+      @submitted="handleOrderFormSubmit" />
 
     <!-- Order Detail Modal -->
     <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail" />

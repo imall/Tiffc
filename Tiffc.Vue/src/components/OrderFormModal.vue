@@ -1,17 +1,18 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { useProducts } from '../composables/useProducts'
 
 const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  products: {
+    type: Array,
+    default: () => []
   }
 })
 
 const emit = defineEmits(['close', 'submitted'])
-
-const { products } = useProducts()
 
 const form = reactive({
   customerName: '',
@@ -378,7 +379,7 @@ function handleBackdropClick(e) {
                 <div class="flex justify-between items-center">
                   <span class="text-base font-semibold text-gray-900">訂單總額</span>
                   <span class="text-xl font-bold text-gray-900">NT$ {{form.items.reduce((sum, item) => sum +
-                    (item.unitPrice * item.quantity), 0).toLocaleString() }}</span>
+                    (item.unitPrice * item.quantity), 0).toLocaleString()}}</span>
                 </div>
               </div>
             </div>
