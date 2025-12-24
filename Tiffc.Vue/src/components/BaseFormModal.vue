@@ -50,7 +50,11 @@ function handleBackdropClick(e) {
       @click="handleBackdropClick">
       <div :class="[
         'bg-white rounded-lg w-full max-h-[90vh] overflow-hidden shadow-xl',
-        `max-w-${maxWidth}`
+        {
+          'max-w-2xl': maxWidth === '2xl',
+          'max-w-4xl': maxWidth === '4xl',
+          'max-w-6xl': maxWidth === '6xl'
+        }
       ]" @click.stop>
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
