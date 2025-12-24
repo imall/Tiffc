@@ -149,14 +149,14 @@ function closeOrderDetail() {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span class="hidden sm:inline">{{ showProductForm && formMode === 'add' ? '取消' : '新增商品' }}</span>
+            <span class="hidden sm:inline">新增商品</span>
           </button>
           <button v-else @click="toggleOrderForm"
             class="px-3 sm:px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium text-sm cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span class="hidden sm:inline">{{ showOrderForm ? '取消' : '建立訂單' }}</span>
+            <span class="hidden sm:inline">建立訂單</span>
           </button>
         </div>
       </div>
