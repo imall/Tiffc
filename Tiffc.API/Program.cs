@@ -29,6 +29,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepository>();
 // 註冊所有爬蟲
 builder.Services.AddScoped<IExchangeRateCrawler, LetaoCrawler>();
+builder.Services.AddScoped<IExchangeRateCrawler, BibianCrawler>();
 
 // 註冊爬蟲服務
 builder.Services.AddScoped<ExchangeRateCrawlerService>();
