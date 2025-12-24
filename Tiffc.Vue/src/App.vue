@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import { useProducts } from './composables/useProducts'
-import { useOrders } from './composables/useOrders'
+import { useProductStore } from './stores/products'
+import { useOrderStore } from './stores/orders'
 import { useImageDownloader } from './composables/useImageDownloader'
 import ProductFormModal from './components/ProductFormModal.vue'
 import ProductCard from './components/ProductCard.vue'
@@ -13,16 +13,18 @@ import ConfirmDialog from './components/ConfirmDialog.vue'
 // 頁面切換
 const currentView = ref('products') // 'products' or 'orders'
 
-// 商品相關
-const { products, loading, refresh, deleteProduct, isDeleting } = useProducts()
+// 使用 Pinia stores
+const productStore = useProductStore()
+const orderStore = useOrderStore()
 const { downloading, downloadAllImages } = useImageDownloader()
+
+// 商品相關
 const showProductForm = ref(false)
 const formMode = ref('add')
 const productToEdit = ref(null)
 const productToDelete = ref(null)
 
 // 訂單相關
-const { orders, loading: ordersLoading, createOrder, fetchOrderByNumber } = useOrders()
 const showOrderForm = ref(false)
 const showOrderDetail = ref(false)
 const selectedOrder = ref(null)
@@ -50,7 +52,7 @@ function closeProductForm() {
 }
 
 async function onProductFormSubmitted() {
-  await refresh()
+  await productStore.refresh()
 }
 
 function handleDelete(product) {
@@ -64,7 +66,7 @@ function cancelDelete() {
 async function confirmDelete() {
   if (!productToDelete.value) return
 
-  const success = await deleteProduct(productToDelete.value.id)
+  const success = await productStore.deleteProduct(productToDelete.value.id)
   if (!success) {
     alert('刪除商品失敗，請稍後再試')
   }
@@ -81,7 +83,7 @@ function closeOrderForm() {
 }
 
 async function handleOrderFormSubmit(orderData) {
-  const result = await createOrder(orderData)
+  const result = await orderStore.createOrder(orderData)
   if (result.success) {
     closeOrderForm()
     alert('訂單建立成功！')
@@ -92,7 +94,7 @@ async function handleOrderFormSubmit(orderData) {
 
 async function handleViewOrderDetail(order) {
   // 獲取完整訂單資料
-  const fullOrder = await fetchOrderByNumber(order.orderNumber)
+  const fullOrder = await orderStore.fetchOrderByNumber(order.orderNumber)
   if (fullOrder) {
     selectedOrder.value = fullOrder
     showOrderDetail.value = true
@@ -165,8 +167,7 @@ function closeOrderDetail() {
       @submitted="onProductFormSubmitted" />
 
     <!-- Order Form Modal -->
-    <OrderFormModal :visible="showOrderForm" :products="products" @close="closeOrderForm"
-      @submitted="handleOrderFormSubmit" />
+    <OrderFormModal :visible="showOrderForm" @close="closeOrderForm" @submitted="handleOrderFormSubmit" />
 
     <!-- Order Detail Modal -->
     <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" @close="closeOrderDetail" />
@@ -176,13 +177,13 @@ function closeOrderDetail() {
       <!-- Products View -->
       <div v-if="currentView === 'products'">
         <!-- Loading State -->
-        <div v-if="loading" class="text-center py-20">
+        <div v-if="productStore.loading" class="text-center py-20">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           <p class="mt-4 text-gray-600">讀取中...</p>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="products.length === 0" class="text-center py-20">
+        <div v-else-if="productStore.products.length === 0" class="text-center py-20">
           <div class="text-6xl mb-4">📦</div>
           <h3 class="text-xl font-medium text-gray-900 mb-2">尚無商品</h3>
           <p class="text-gray-600 mb-6">開始新增您的第一個代購商品</p>
@@ -194,7 +195,7 @@ function closeOrderDetail() {
 
         <!-- Products Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <ProductCard v-for="product in products" :key="product.id" :product="product"
+          <ProductCard v-for="product in productStore.products" :key="product.id" :product="product"
             :downloading="downloading[product.id] || false" @download="handleDownload" @edit="handleEdit"
             @delete="handleDelete" />
         </div>
@@ -203,13 +204,13 @@ function closeOrderDetail() {
       <!-- Orders View -->
       <div v-else-if="currentView === 'orders'">
         <!-- Loading State -->
-        <div v-if="ordersLoading" class="text-center py-20">
+        <div v-if="orderStore.loading" class="text-center py-20">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           <p class="mt-4 text-gray-600">讀取中...</p>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="orders.length === 0" class="text-center py-20">
+        <div v-else-if="orderStore.orders.length === 0" class="text-center py-20">
           <div class="text-6xl mb-4">📋</div>
           <h3 class="text-xl font-medium text-gray-900 mb-2">尚無訂單</h3>
           <p class="text-gray-600 mb-6">開始建立您的第一筆訂單</p>
@@ -221,14 +222,15 @@ function closeOrderDetail() {
 
         <!-- Orders Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <OrderCard v-for="order in orders" :key="order.id" :order="order" @view-detail="handleViewOrderDetail" />
+          <OrderCard v-for="order in orderStore.orders" :key="order.id" :order="order"
+            @view-detail="handleViewOrderDetail" />
         </div>
       </div>
     </main>
 
     <!-- Delete Confirmation Dialog -->
     <ConfirmDialog :visible="!!productToDelete" title="確認刪除商品" confirm-text="確認刪除" cancel-text="取消"
-      confirm-button-class="bg-red-500 hover:bg-red-600" :loading="isDeleting" @confirm="confirmDelete"
+      confirm-button-class="bg-red-500 hover:bg-red-600" :loading="productStore.isDeleting" @confirm="confirmDelete"
       @cancel="cancelDelete">
       <p class="text-gray-600 mb-2">確定要刪除以下商品嗎？</p>
       <p class="text-gray-900 font-medium mb-4">「{{ productToDelete?.title }}」</p>

@@ -1,14 +1,13 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { useProductStore } from '../stores/products'
+
+const productStore = useProductStore()
 
 const props = defineProps({
   visible: {
     type: Boolean,
     default: false
-  },
-  products: {
-    type: Array,
-    default: () => []
   }
 })
 
@@ -71,7 +70,7 @@ const variantOptions = computed(() => {
 
 function handleProductSelect(e) {
   const productId = e.target.value
-  selectedProduct.value = products.value.find(p => p.id === productId)
+  selectedProduct.value = productStore.products.find(p => p.id === productId)
   currentItem.productId = productId
 
   // 自動帶入台幣定價
@@ -97,7 +96,7 @@ function handleProductSelect(e) {
 function addItemToOrder() {
   if (!canAddItem.value) return
 
-  const product = products.value.find(p => p.id === currentItem.productId)
+  const product = productStore.products.find(p => p.id === currentItem.productId)
 
   form.items.push({
     productId: currentItem.productId,
@@ -255,7 +254,7 @@ function handleBackdropClick(e) {
                   <select v-model="currentItem.productId" @change="handleProductSelect"
                     class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none  cursor-pointer">
                     <option value="">請選擇商品</option>
-                    <option v-for="product in products" :key="product.id" :value="product.id">
+                    <option v-for="product in productStore.products" :key="product.id" :value="product.id">
                       {{ product.title }}
                     </option>
                   </select>
