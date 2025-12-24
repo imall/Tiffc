@@ -221,8 +221,8 @@ public class OrderRepository(Client supabaseClient)
             CustomerPhone = order.CustomerPhone,
             TotalAmount = order.TotalAmount,
             Status = order.Status,
-            CreatedAt = order.CreatedAt,
-            UpdatedAt = order.UpdatedAt
+            CreatedAt = order.CreatedAt.ToLocalTime(),
+            UpdatedAt = order.UpdatedAt.ToLocalTime()
         };
     }
 
@@ -236,7 +236,7 @@ public class OrderRepository(Client supabaseClient)
             Quantity = orderItem.Quantity,
             UnitPrice = orderItem.UnitPrice,
             Subtotal = orderItem.Subtotal,
-            CreatedAt = orderItem.CreatedAt
+            CreatedAt = orderItem.CreatedAt.ToLocalTime()
         };
     }
 
@@ -248,7 +248,7 @@ public class OrderRepository(Client supabaseClient)
             OrderItemId = variant.OrderItemId,
             VariantName = variant.VariantName,
             VariantValue = variant.VariantValue,
-            CreatedAt = variant.CreatedAt
+            CreatedAt = variant.CreatedAt.ToLocalTime()
         };
     }
 
