@@ -336,7 +336,7 @@ function handleBackdropClick(e) {
                       <a v-if="item.productUrl" :href="item.productUrl" target="_blank" rel="noopener noreferrer"
                         class="font-medium text-gray-900 hover:text-blue-600 transition-colors inline-flex items-start gap-1">
                         <span class="line-clamp-2">{{ item.productTitle }}</span>
-                        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
@@ -356,7 +356,7 @@ function handleBackdropClick(e) {
                   </div>
 
                   <!-- Pricing and Remove -->
-                  <div class="flex flex-col justify-between items-end gap-2 flex-shrink-0 h-full">
+                  <div class="flex flex-col justify-between items-end gap-2 shrink-0 h-full">
                     <button @click="removeItem(index)"
                       class="text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,7 +367,7 @@ function handleBackdropClick(e) {
                     <div class="text-right">
                       <div class="text-sm text-gray-600">小計</div>
                       <div class="font-semibold text-gray-900">NT$ {{ (item.unitPrice * item.quantity).toLocaleString()
-                        }}</div>
+                      }}</div>
                     </div>
                   </div>
                 </div>
@@ -377,7 +377,8 @@ function handleBackdropClick(e) {
               <div class="bg-white rounded-lg p-4 border-2 border-gray-300">
                 <div class="flex justify-between items-center">
                   <span class="text-base font-semibold text-gray-900">訂單總額</span>
-                  <span class="text-xl font-bold text-gray-900">NT$ {{ form.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0).toLocaleString() }}</span>
+                  <span class="text-xl font-bold text-gray-900">NT$ {{form.items.reduce((sum, item) => sum +
+                    (item.unitPrice * item.quantity), 0).toLocaleString() }}</span>
                 </div>
               </div>
             </div>
