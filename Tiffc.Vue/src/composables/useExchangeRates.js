@@ -27,6 +27,7 @@ export function useExchangeRates() {
     const priceJpy = jpySale > 0 ? jpySale : jpyOriginal
     return exchangeRates.value.map(rate => ({
       source: rate.source,
+      rate: rate.rate,
       price: Math.round((priceJpy || 0) * rate.rate)
     }))
   }

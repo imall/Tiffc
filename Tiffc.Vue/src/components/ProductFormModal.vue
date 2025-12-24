@@ -72,7 +72,7 @@ function onCancel() {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               <label class="flex flex-col col-span-2">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">商品網址</span>
+                <span class="text-sm font-medium text-gray-700 mb-1.5">商品網址 *</span>
                 <input v-model="form.url"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="https://..." />
@@ -85,14 +85,14 @@ function onCancel() {
                   placeholder="請輸入商品標題" />
               </label>
               <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">分類</span>
+                <span class="text-sm font-medium text-gray-700 mb-1.5">分類 *</span>
                 <input v-model="form.category"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="衣服" />
               </label>
 
               <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">商店名稱</span>
+                <span class="text-sm font-medium text-gray-700 mb-1.5">商店名稱 *</span>
                 <input v-model="form.shopName"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="ZOZOTOWN" />
@@ -100,7 +100,7 @@ function onCancel() {
 
 
               <label class="flex flex-col">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">日幣原價 </span>
+                <span class="text-sm font-medium text-gray-700 mb-1.5">日幣原價 * </span>
                 <input type="number" v-model.number="form.priceJpyOriginal" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
@@ -116,16 +116,19 @@ function onCancel() {
               </label>
 
               <div class="flex flex-col justify-center col-span-2">
-                <span class="text-sm font-medium text-gray-700 mb-1.5">各代購網站台幣售價</span>
+                <span class="text-sm font-medium text-gray-700 mb-1.5">各代購網站資訊</span>
                 <div v-if="sitePrices.length">
                   <div v-for="site in sitePrices" :key="site.source" class="text-xs text-gray-600 mb-1">
-                    {{ site.source }} 台幣售價：<span class="font-bold">{{ site.price }}</span>
+                    <span class="inline-block w-13">{{ site.source }}</span>
+                    <span class="mr-3">日圓匯率 <span class="font-semibold">{{ site.rate.toFixed(4) }}</span></span>
+                    <span>代購價 <span class="font-semibold">{{ site.price }}</span></span>
                   </div>
                 </div>
                 <div v-else class="text-xs text-gray-400">無法取得匯率資料</div>
               </div>
+
               <label class="flex flex-col">
-                <span class="text-sm font-bold  text-black-700 mb-1.5">台幣售價 *</span>
+                <span class="text-sm font-bold  text-black-700 mb-1.5">台幣代購定價 *</span>
                 <input type="number" v-model.number="form.priceTwd" @focus="$event.target.select()"
                   class="px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none"
                   placeholder="0" />
