@@ -27,6 +27,11 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepository>();
+
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<OrderRepository>();
+
+
 // 註冊所有爬蟲
 builder.Services.AddScoped<IExchangeRateCrawler, LetaoCrawler>();
 builder.Services.AddScoped<IExchangeRateCrawler, BibianCrawler>();

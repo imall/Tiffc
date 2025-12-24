@@ -83,28 +83,28 @@ public class OrderRepository(Client supabaseClient)
         }
 
         // 6. 查詢完整訂單資料並回傳
-        return await GetOrderByIdAsync(createdOrder.Id);
+        return await GetOrderByIdAsync(createdOrder.OrderNumber);
     }
 
     /// <summary>
     /// 根據 ID 查詢訂單(含明細和規格)
     /// </summary>
-    public async Task<OrderModel> GetOrderByIdAsync(Guid orderId)
+    public async Task<OrderModel> GetOrderByIdAsync(string orderNumber)
     {
         // 1. 查詢訂單
         var orderResponse = await supabaseClient
             .From<Order>()
-            .Where(o => o.Id == orderId)
+            .Where(o => o.OrderNumber == orderNumber)
             .Get();
 
         var order = orderResponse.Models.FirstOrDefault();
         if (order == null)
-            throw new Exception($"找不到訂單 ID: {orderId}");
+            throw new Exception($"找不到訂單 ID: {orderNumber}");
 
         // 2. 查詢訂單明細
         var orderItemsResponse = await supabaseClient
             .From<OrderItem>()
-            .Where(oi => oi.OrderId == orderId)
+            .Where(oi => oi.OrderId == order.Id)
             .Get();
 
         var orderItems = orderItemsResponse.Models;
