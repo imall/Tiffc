@@ -1,4 +1,6 @@
+using Tiffc.API;
 using Tiffc.API.DependencyInjection;
+using Tiffc.API.SwaggerSettings;
 using Tiffc.Repository;
 using Tiffc.Service;
 using Tiffc.Service.Crawlers;
@@ -25,6 +27,7 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddSwaggerSettings();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepository>();
 
@@ -56,6 +59,8 @@ app.UseHttpsRedirection();
 // 提供靜態文件服務
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+app.UseSwaggerSettings();
 
 // 啟用 CORS（需在 Authorization 之前）
 app.UseCors("AllowLocalhosts");

@@ -26,7 +26,7 @@ public class CreateOrderParameter
     /// <summary>
     /// 訂單狀態
     /// </summary>
-    /// <example>待付款</example>
+    /// <example>1</example>
     public StatusEnum Status { get; set; } = StatusEnum.待付款;
 
     public IEnumerable<CreateOrderItemParameter> Items { get; set; } = [];
@@ -52,6 +52,7 @@ public class CreateOrderItemParameter
     /// <summary>
     /// 商品單價
     /// </summary>
+    /// <example>999</example>
     public decimal UnitPrice { get; set; }
 
     public IEnumerable<CreateOrderItemVariantParameter>? Variants { get; set; }
