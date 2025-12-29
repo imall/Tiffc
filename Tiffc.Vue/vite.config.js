@@ -7,6 +7,15 @@ import path from 'path'
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   server: {
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]'
+        }
+      }
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
