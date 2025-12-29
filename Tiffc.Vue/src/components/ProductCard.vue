@@ -106,7 +106,10 @@ async function copyToClipboard() {
         <span v-if="product.shopName">{{ product.shopName }}</span>
       </div>
 
-      <h3 class="font-medium text-gray-900 mb-3 line-clamp-2 min-h-12">{{ product.title }}</h3>
+      <h3 class="font-medium text-gray-900 mb-3 line-clamp-2 min-h-12">
+        <a :href="product.url" target="_blank" class="hover:text-gray-600">
+          {{ product.title }}</a>
+      </h3>
 
       <div class="mb-3">
         <div class="flex items-baseline gap-2">
@@ -128,19 +131,13 @@ async function copyToClipboard() {
         <p class="text-xs text-gray-500"><span class="font-medium">備註:</span> {{ product.notes }}</p>
       </div>
 
-
-      <div class="flex gap-2" :class="product.notes ? '' : 'mt-auto'">
+      <div class="flex gap-2 mt-2" :class="product.notes ? '' : 'mt-auto'">
         <button @click="copyToClipboard"
-          class="flex-1 text-center px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 transition-colors text-sm font-medium">
+          class="flex-1 text-center px-4 py-2 bg-blue-50 border border-blue-300 text-blue-700 rounded-sm hover:bg-blue-100 transition-colors text-sm font-medium cursor-pointer">
           {{ isCopied ? '✓ 已複製' : '複製文案' }}
         </button>
-      </div>
-
-      <div class="flex gap-2 mt-2">
-        <a v-if="product.url" :href="product.url" target="_blank"
-          class="flex-1 text-center px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors text-sm font-medium">查看商品</a>
         <button @click="onDownload" :disabled="downloading"
-          class="flex-1 text-center px-4 py-2 bg-white border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-60 cursor-pointer">{{
+          class="flex-1 text-center px-4 py-2 bg-gray-50 text-gray-700 hover:bg-gray-100  border border-gray-300 rounded-sm  transition-colors text-sm font-medium disabled:opacity-60 cursor-pointer">{{
             downloading ? '下載中...' : '下載圖片' }}</button>
       </div>
 
