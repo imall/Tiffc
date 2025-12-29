@@ -1,3 +1,23 @@
+# ========== 階段 1: 建置 Vue 前端 ==========
+FROM node:20-alpine AS frontend-build
+
+WORKDIR /src/frontend
+
+# 安裝 pnpm
+RUN npm install -g pnpm
+
+# 複製 Vue 專案的 package.json
+COPY ["Tiffc.Vue/package.json", "Tiffc.Vue/pnpm-lock.yaml*", "./"]
+
+# 安裝依賴
+RUN pnpm install --frozen-lockfile
+
+# 複製 Vue 原始碼
+COPY ["Tiffc.Vue/", "./"]
+
+# 建置前端（輸出到臨時目錄）
+RUN pnpm build
+
 # 使用 .NET 8.0 SDK 作為建置階段
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
@@ -19,6 +39,9 @@ RUN dotnet restore "Tiffc.API/Tiffc.API.csproj"
 
 # 複製所有原始碼
 COPY . .
+
+# 從前端建置階段複製打包好的檔案到 wwwroot
+COPY --from=frontend-build /src/frontend/dist /src/Tiffc.API/wwwroot
 
 # 建置並發布專案
 WORKDIR "/src/Tiffc.API"
