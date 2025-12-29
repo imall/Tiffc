@@ -7,7 +7,7 @@ WORKDIR /src/frontend
 RUN npm install -g pnpm
 
 # 複製 Vue 專案的 package.json
-COPY ["Tiffc.Vue/package.json", "Tiffc.Vue/pnpm-lock.yaml*", "./"]
+COPY ["Tiffc.Vue/package.json", "Tiffc.Vue/pnpm-lock.yaml", "./"]
 
 # 安裝依賴
 RUN pnpm install --frozen-lockfile
