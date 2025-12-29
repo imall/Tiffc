@@ -1,7 +1,3 @@
-<script setup>
-  console.log('App.vue loaded')
-</script>
-
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
