@@ -36,18 +36,11 @@ function handleClose() {
 function handleSubmit() {
   emit('submit')
 }
-
-function handleBackdropClick(e) {
-  if (e.target === e.currentTarget) {
-    handleClose()
-  }
-}
 </script>
 
 <template>
   <Transition name="modal">
-    <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      @click="handleBackdropClick">
+    <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div :class="[
         'bg-white rounded-lg w-full max-h-[90vh] overflow-hidden shadow-xl',
         {
