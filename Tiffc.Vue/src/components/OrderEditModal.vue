@@ -35,6 +35,15 @@ const errors = ref({})
 const editingItemIndex = ref(null)
 const itemBeingEdited = ref(null)
 
+// 新增商品相關
+const currentItem = ref({
+  productId: '',
+  quantity: 1,
+  unitPrice: 0,
+  variants: []
+})
+const selectedProduct = ref(null)
+
 // Watch for order changes
 watch(() => props.order, (newOrder) => {
   if (newOrder) {
@@ -76,7 +85,29 @@ const totalAmount = computed(() => {
   }, 0)
 })
 
-// 取得商品的規格選項
+// 整理規格選項：按 variantName 分組，提供可選的 variantValue
+const variantOptions = computed(() => {
+  if (!selectedProduct.value?.variants) return {}
+
+  const options = {}
+  selectedProduct.value.variants.forEach(v => {
+    if (!options[v.variantName]) {
+      options[v.variantName] = []
+    }
+    // 避免重複的值
+    if (!options[v.variantName].includes(v.variantValue)) {
+      options[v.variantName].push(v.variantValue)
+    }
+  })
+
+  return options
+})
+
+const canAddItem = computed(() => {
+  return currentItem.value.productId && currentItem.value.quantity > 0 && currentItem.value.unitPrice > 0
+})
+
+// 取得商品的規格選項（用於編輯現有項目）
 function getVariantOptions(productId) {
   const product = productStore.products.find(p => p.id === productId)
   if (!product?.variants) return {}
@@ -92,6 +123,58 @@ function getVariantOptions(productId) {
   })
 
   return options
+}
+
+// 處理選擇商品
+function handleProductSelect(e) {
+  const productId = e.target.value
+  selectedProduct.value = productStore.products.find(p => p.id === productId)
+  currentItem.value.productId = productId
+
+  // 自動帶入台幣定價
+  if (selectedProduct.value?.priceTwd) {
+    currentItem.value.unitPrice = selectedProduct.value.priceTwd
+  } else {
+    currentItem.value.unitPrice = 0
+  }
+
+  // 清空規格
+  currentItem.value.variants = []
+
+  // 如果商品有規格，準備規格選項（按 variantName 分組）
+  if (selectedProduct.value?.variants?.length > 0) {
+    const variantNames = [...new Set(selectedProduct.value.variants.map(v => v.variantName))]
+    currentItem.value.variants = variantNames.map(name => ({
+      variantName: name,
+      variantValue: ''
+    }))
+  }
+}
+
+// 添加商品到訂單
+function addItemToOrder() {
+  if (!canAddItem.value) return
+
+  const product = productStore.products.find(p => p.id === currentItem.value.productId)
+
+  formData.value.items.push({
+    productId: currentItem.value.productId,
+    productInfo: {
+      title: product?.title || '未知商品',
+      imageUrl: product?.imageUrls?.[0] || null,
+      url: product?.url || null
+    },
+    quantity: currentItem.value.quantity,
+    unitPrice: currentItem.value.unitPrice,
+    variants: [...currentItem.value.variants.filter(v => v.variantValue)]
+  })
+
+  // 重置當前項目
+  currentItem.value.productId = ''
+  currentItem.value.quantity = 1
+  currentItem.value.unitPrice = 0
+  currentItem.value.variants = []
+  selectedProduct.value = null
 }
 
 // 取得商品的所有規格名稱
@@ -204,10 +287,6 @@ function handleClose() {
 }
 
 function removeItem(index) {
-  if (formData.value.items.length === 1) {
-    alert('至少需要保留一個訂單項目')
-    return
-  }
   formData.value.items.splice(index, 1)
 }
 
@@ -267,6 +346,59 @@ const submitLoadingText = '儲存中...'
       </div>
     </div>
 
+    <!-- Add Item Section -->
+    <div class="mb-6 pb-6 border-b border-gray-200">
+      <h3 class="text-sm font-semibold text-gray-900 mb-4">添加商品</h3>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">選擇商品</label>
+            <select v-model="currentItem.productId" @change="handleProductSelect"
+              class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none cursor-pointer">
+              <option value="">請選擇商品</option>
+              <option v-for="product in productStore.products" :key="product.id" :value="product.id">
+                {{ product.title }}
+              </option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">數量</label>
+              <input v-model.number="currentItem.quantity" type="number" min="1" placeholder="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">單價</label>
+              <input v-model.number="currentItem.unitPrice" type="number" min="0" placeholder="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Variants -->
+        <div v-if="currentItem.variants.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-for="(variant, index) in currentItem.variants" :key="index">
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ variant.variantName }}</label>
+            <select v-model="variant.variantValue"
+              class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none cursor-pointer">
+              <option value="">請選擇{{ variant.variantName }}</option>
+              <option v-for="value in variantOptions[variant.variantName]" :key="value" :value="value">
+                {{ value }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <button @click="addItemToOrder" :disabled="!canAddItem"
+          class="w-full py-2.5 bg-gray-100 text-gray-700 rounded-sm hover:bg-gray-200 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          + 添加至訂單
+        </button>
+      </div>
+    </div>
+
     <!-- Order Items -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-4">
@@ -275,7 +407,11 @@ const submitLoadingText = '儲存中...'
       </div>
       <p v-if="errors.items" class="mb-3 text-sm text-red-500">{{ errors.items }}</p>
 
-      <div class="space-y-4">
+      <div v-if="formData.items.length === 0" class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+        尚未添加商品
+      </div>
+
+      <div v-else class="space-y-4">
         <div v-for="(item, itemIndex) in formData.items" :key="itemIndex"
           class="bg-gray-50 rounded-lg p-4 border border-gray-200">
 
