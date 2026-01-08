@@ -97,6 +97,33 @@ export const useOrderStore = defineStore('orders', () => {
     }
   }
 
+  async function updateOrder(orderId, orderData) {
+    error.value = ''
+    try {
+      const res = await fetch(`${baseUrl}/api/Order/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || `${res.status} ${res.statusText}`)
+      }
+      const updatedOrder = await res.json()
+      // 更新本地列表中的訂單
+      const index = orders.value.findIndex(o => o.id === orderId)
+      if (index !== -1) {
+        orders.value[index] = updatedOrder
+      }
+      return { success: true, order: updatedOrder }
+    } catch (e) {
+      error.value = '更新訂單失敗: ' + e.message
+      return { success: false, error: e.message }
+    }
+  }
+
   async function deleteOrder(orderId) {
     isDeleting.value = true
     error.value = ''
@@ -134,6 +161,7 @@ export const useOrderStore = defineStore('orders', () => {
     fetchOrders,
     fetchOrderByNumber,
     createOrder,
+    updateOrder,
     updateOrderStatus,
     deleteOrder,
     refresh

@@ -19,7 +19,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'delete'])
+const emit = defineEmits(['close', 'delete', 'edit'])
 
 const statusColors = {
   '待付款': 'bg-yellow-100 text-yellow-800',
@@ -52,6 +52,10 @@ function handleClose() {
 
 function handleDelete() {
   emit('delete', props.order)
+}
+
+function handleEdit() {
+  emit('edit', props.order)
 }
 
 function handleBackdropClick(e) {
@@ -214,10 +218,16 @@ function handleBackdropClick(e) {
             class="px-6 py-2.5 bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors font-medium cursor-pointer">
             刪除訂單
           </button>
-          <button @click="handleClose"
-            class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
-            關閉
-          </button>
+          <div class="flex gap-3">
+            <button @click="handleEdit"
+              class="px-6 py-2.5 bg-gray-700 text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
+              編輯訂單
+            </button>
+            <button @click="handleClose"
+              class="px-6 py-2.5 bg-black text-white rounded-sm hover:bg-gray-800 transition-colors font-medium cursor-pointer">
+              關閉
+            </button>
+          </div>
         </div>
       </div>
     </div>

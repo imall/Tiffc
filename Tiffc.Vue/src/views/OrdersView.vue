@@ -4,12 +4,14 @@ import { useOrderStore } from '../stores/orders'
 import OrderCard from '../components/OrderCard.vue'
 import OrderFormModal from '../components/OrderFormModal.vue'
 import OrderDetailModal from '../components/OrderDetailModal.vue'
+import OrderEditModal from '../components/OrderEditModal.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const orderStore = useOrderStore()
 
 const showOrderForm = ref(false)
 const showOrderDetail = ref(false)
+const showOrderEdit = ref(false)
 const selectedOrder = ref(null)
 const orderToDelete = ref(null)
 
@@ -45,6 +47,24 @@ function closeOrderDetail() {
 
 function handleOrderDelete(order) {
   orderToDelete.value = order
+}
+
+function handleOrderEdit(order) {
+  selectedOrder.value = order
+  showOrderDetail.value = false
+  showOrderEdit.value = true
+}
+
+function closeOrderEdit() {
+  showOrderEdit.value = false
+}
+
+async function handleOrderUpdated(updatedOrder) {
+  // 更新 selectedOrder 以便重新打開詳情頁時顯示最新數據
+  selectedOrder.value = updatedOrder
+  // 關閉編輯視窗並重新打開詳情頁
+  showOrderEdit.value = false
+  showOrderDetail.value = true
 }
 
 function cancelOrderDelete() {
@@ -84,7 +104,11 @@ async function confirmOrderDelete() {
 
     <!-- Order Detail Modal -->
     <OrderDetailModal :visible="showOrderDetail" :order="selectedOrder" :loading="orderStore.loadingDetail"
-      @close="closeOrderDetail" @delete="handleOrderDelete" />
+      @close="closeOrderDetail" @delete="handleOrderDelete" @edit="handleOrderEdit" />
+
+    <!-- Order Edit Modal -->
+    <OrderEditModal :visible="showOrderEdit" :order="selectedOrder" @close="closeOrderEdit"
+      @updated="handleOrderUpdated" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
