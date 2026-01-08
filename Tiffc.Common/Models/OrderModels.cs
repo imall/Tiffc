@@ -159,3 +159,81 @@ public class ProductInfoModel
     
 
 }
+
+/// <summary>
+/// 更新訂單參數
+/// </summary>
+public class UpdateOrderParameter
+{
+    /// <summary>
+    /// 顧客姓名
+    /// </summary>
+    public string? CustomerName { get; set; }
+    
+    /// <summary>
+    /// 顧客 email
+    /// </summary>
+    public string? CustomerEmail { get; set; }
+    
+    /// <summary>
+    /// 顧客電話
+    /// </summary>
+    public string? CustomerPhone { get; set; }
+    
+    /// <summary>
+    /// 訂單狀態
+    /// </summary>
+    public StatusEnum? Status { get; set; }
+    
+    /// <summary>
+    /// 訂單明細
+    /// </summary>
+    public List<UpdateOrderItemParameter>? Items { get; set; }
+}
+
+/// <summary>
+/// 更新訂單明細參數
+/// </summary>
+public class UpdateOrderItemParameter
+{
+    /// <summary>
+    /// 訂單明細 ID（若為新增項目則不填）
+    /// </summary>
+    public Guid? Id { get; set; }
+    
+    /// <summary>
+    /// 商品 ID
+    /// </summary>
+    public Guid ProductId { get; set; }
+    
+    /// <summary>
+    /// 數量
+    /// </summary>
+    public int Quantity { get; set; }
+    
+    /// <summary>
+    /// 單價
+    /// </summary>
+    public decimal UnitPrice { get; set; }
+    
+    /// <summary>
+    /// 商品規格
+    /// </summary>
+    public List<UpdateOrderItemVariantParameter>? Variants { get; set; }
+}
+
+/// <summary>
+/// 更新訂單商品規格參數
+/// </summary>
+public class UpdateOrderItemVariantParameter
+{
+    /// <summary>
+    /// 規格名稱
+    /// </summary>
+    public string VariantName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// 規格值 
+    /// </summary>
+    public string VariantValue { get; set; } = string.Empty;
+}

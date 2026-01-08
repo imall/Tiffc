@@ -231,6 +231,124 @@ public class OrderRepository(Client supabaseClient)
     }
 
     /// <summary>
+    /// 更新訂單資料
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="parameter">更新參數</param>
+    /// <returns>更新後的訂單資料</returns>
+    public async Task<OrderModel> UpdateOrderAsync(Guid orderId, UpdateOrderParameter parameter)
+    {
+        // 1. 查詢訂單是否存在
+        var existingOrder = await supabaseClient
+            .From<Order>()
+            .Where(o => o.Id == orderId)
+            .Single();
+
+        if (existingOrder == null)
+        {
+            throw new Exception($"找不到訂單 ID: {orderId}");
+        }
+
+        // 2. 更新訂單基本資料
+        if (parameter.CustomerName != null)
+            existingOrder.CustomerName = parameter.CustomerName;
+        
+        if (parameter.CustomerEmail != null)
+            existingOrder.CustomerEmail = parameter.CustomerEmail;
+        
+        if (parameter.CustomerPhone != null)
+            existingOrder.CustomerPhone = parameter.CustomerPhone;
+        
+        if (parameter.Status.HasValue)
+            existingOrder.Status = parameter.Status.Value.ToString();
+
+        // 3. 如果有訂單明細更新
+        if (parameter.Items != null && parameter.Items.Any())
+        {
+            // 重新計算總金額
+            var totalAmount = parameter.Items.Sum(item => item.UnitPrice * item.Quantity);
+            existingOrder.TotalAmount = totalAmount;
+
+            // 刪除現有的訂單明細和規格
+            var existingItemsResponse = await supabaseClient
+                .From<OrderItem>()
+                .Where(oi => oi.OrderId == orderId)
+                .Get();
+
+            var existingItemIds = existingItemsResponse.Models.Select(oi => oi.Id).ToList();
+
+            if (existingItemIds.Any())
+            {
+                // 刪除現有規格
+                await supabaseClient
+                    .From<OrderItemVariant>()
+                    .Filter("order_item_id", Supabase.Postgrest.Constants.Operator.In, existingItemIds)
+                    .Delete();
+
+                // 刪除現有明細
+                await supabaseClient
+                    .From<OrderItem>()
+                    .Where(oi => oi.OrderId == orderId)
+                    .Delete();
+            }
+
+            // 新增訂單明細
+            var newOrderItems = parameter.Items.Select(item => new OrderItem
+                {
+                    OrderId = orderId,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    Subtotal = item.UnitPrice * item.Quantity
+                })
+                .ToList();
+
+            var orderItemsResponse = await supabaseClient
+                .From<OrderItem>()
+                .Insert(newOrderItems);
+
+            var createdOrderItems = orderItemsResponse.Models;
+
+            // 新增訂單商品規格
+            var allVariants = new List<OrderItemVariant>();
+            for (int i = 0; i < parameter.Items.Count; i++)
+            {
+                var item = parameter.Items[i];
+                var createdOrderItem = createdOrderItems.ElementAt(i);
+
+                if (item.Variants != null && item.Variants.Any())
+                {
+                    var variants = item.Variants.Select(v => new OrderItemVariant
+                    {
+                        OrderItemId = createdOrderItem.Id,
+                        VariantName = v.VariantName,
+                        VariantValue = v.VariantValue
+                    }).ToList();
+
+                    allVariants.AddRange(variants);
+                }
+            }
+
+            if (allVariants.Any())
+            {
+                await supabaseClient
+                    .From<OrderItemVariant>()
+                    .Insert(allVariants);
+            }
+        }
+
+        // 4. 更新訂單主表
+        var updateResponse = await supabaseClient
+            .From<Order>()
+            .Update(existingOrder);
+
+        var updatedOrder = updateResponse.Models.First();
+
+        // 5. 查詢完整的訂單資料並返回
+        return await GetOrderByIdAsync(updatedOrder.OrderNumber);
+    }
+
+    /// <summary>
     /// 刪除訂單（包含訂單明細和規格）
     /// </summary>
     /// <param name="orderId">訂單 ID</param>

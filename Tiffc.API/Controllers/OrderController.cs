@@ -82,6 +82,50 @@ public class OrderController(OrderService orderService) : ControllerBase
     }
 
     /// <summary>
+    /// 編輯訂單資料
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="parameter">訂單更新參數</param>
+    /// <returns>更新後的訂單資料</returns>
+    /// <response code="200">訂單更新成功</response>
+    /// <response code="400">請求參數錯誤</response>
+    /// <response code="404">找不到訂單</response>
+    /// <response code="500">伺服器內部錯誤</response>
+    [HttpPut("{orderId}")]
+    [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OrderModel>> UpdateOrder(Guid orderId, [FromBody] UpdateOrderParameter parameter)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var order = await orderService.UpdateOrderAsync(orderId, parameter);
+            return Ok(order);
+        }
+        catch (Exception ex) when (ex.Message.Contains("找不到訂單"))
+        {
+            return NotFound(new
+            {
+                message = $"找不到訂單 ID: {orderId}"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "更新訂單失敗",
+                error = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
     /// 更新訂單狀態
     /// </summary>
     /// <param name="orderId">訂單 ID</param>

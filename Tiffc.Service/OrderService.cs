@@ -58,6 +58,19 @@ public class OrderService(OrderRepository orderRepository, ProductRepository pro
     }
 
     /// <summary>
+    /// 更新訂單資料
+    /// </summary>
+    /// <param name="orderId">訂單 ID</param>
+    /// <param name="parameter">更新參數</param>
+    /// <returns>更新後的訂單資料</returns>
+    public async Task<OrderModel> UpdateOrderAsync(Guid orderId, UpdateOrderParameter parameter)
+    {
+        var order = await orderRepository.UpdateOrderAsync(orderId, parameter);
+        await EnrichOrderWithProductInfo(order);
+        return order;
+    }
+
+    /// <summary>
     /// 刪除訂單
     /// </summary>
     /// <param name="orderId">訂單 ID</param>

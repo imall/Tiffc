@@ -17,4 +17,8 @@
       <ProjectReference Include="..\Tiffc.Service\Tiffc.Service.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>
